@@ -26,7 +26,7 @@ require_once 'Zend/Application/Bootstrap/Bootstrap.php';
 
 class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
-	
+    
 	protected function _initMyView()
 	{
 		$this->bootstrap('view');
@@ -57,6 +57,9 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   
 						   /* STACHL LIBRARY */
 						   ->appendFile('/js/library/Stachl/Application.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/StoreMgr.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/DefMgr.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/ViewMgr.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Controller.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Debug.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Exception.js', 'text/javascript')
@@ -65,21 +68,26 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/Stachl/Login.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/AutoLoadPanel.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Module.js', 'text/javascript')
-						   ->appendFile('/js/library/Stachl/ViewMgr.js', 'text/javascript')
-						   ->appendFile('/js/library/Stachl/DefMgr.js', 'text/javascript')
-						   ->appendFile('/js/library/Stachl/StoreMgr.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/TreePanel.js', 'text/javascript')
-						   ->appendFile('/js/library/Stachl/StoreMgr.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Navigation.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Grid.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/CardContainer.js', 'text/javascript')
-						   ->appendFile('/js/library/Stachl/StoreMgr.js', 'text/javascript')
 						   
 						   /* ExtMail COMPONENTS */
-						   ->appendFile('/js/application/Application.js', 'text/javascript')
-						   ->appendFile('/js/application/controllers/LoginController.js', 'text/javascript')
-						   ->appendFile('/js/application/Login/LoginWindow.js', 'text/javascript')
-						   ;
+						   ->appendFile('/js/application/Application.js', 'text/javascript');
+        if (!Zend_Auth::getInstance()->hasIdentity()) {
+            $view->headScript()->appendFile('/js/application/controllers/LoginController.js', 'text/javascript')
+    						   ->appendFile('/js/application/Login/LoginWindow.js', 'text/javascript');
+            $controller = 'LoginController';
+        } else {
+            $view->headScript()->appendFile('/js/application/controllers/MainController.js', 'text/javascript')
+    						   ->appendFile('/js/application/MainPanel/MainPanel.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/MainPanel.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/Navigation.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/CardContainer.js', 'text/javascript')
+    						   ;
+            $controller = 'MainController';
+        }
 
 		$view->headScript()->appendScript('
 			_ = function(key) {
@@ -94,7 +102,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 					contextmenu: {
 						disabled: true
 					},
-					controller: new ExtMail.Controllers.LoginController()
+					controller: new ExtMail.Controllers.' . $controller . '()
 				});
 				Application.run();
 			});

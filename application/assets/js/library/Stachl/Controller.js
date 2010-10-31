@@ -8,6 +8,7 @@ Stachl.Controller = Ext.extend(Ext.Container, {
 	stores: Ext.StoreMgr,
 	forceLayout: true,
 	isController: true,
+	titleId: null,
 	initComponent: function() {
 		Stachl.Controller.superclass.initComponent.call(this);
 				
@@ -20,14 +21,21 @@ Stachl.Controller = Ext.extend(Ext.Container, {
 		};
 		Ext.apply(this, config)
 		
+		this.titleId = Ext.id();
+		
 		var items = [{
-	    	xtype:'container',
-	    	region:'north',
-	    	layout:'column',
-	    	height:50,
-	    	items:[{
-	    		xtype:'box',
-		    	autoEl:{tag:'div',html:'<h1><span>' + this.title + '</span></h1>',cls:'logo'}
+	    	xtype: 'container',
+	    	region: 'north',
+	    	layout: 'column',
+	    	height: 50,
+	    	items: [{
+	    		xtype: 'box',
+		    	autoEl: {
+	    			id: this.titleId,
+	    			tag: 'div',
+	    			html: '<h1><span>' + this.title + '</span></h1>',
+	    			cls: 'logo'
+	    		}
 		    }]
 		}, this.getMainContainer() , {
 			xtype:'box',
@@ -70,6 +78,10 @@ Stachl.Controller = Ext.extend(Ext.Container, {
 			return this.getMainContainer();
 		}
 		return false;
+	},
+	setTitle: function(v) {
+		Ext.get(this.titleId).child('span').update(v + ' - ' + this.title);
+		Ext.getDoc().dom.title = v + ' - ' + this.title;
 	}
 });
 Ext.reg('stachl_controller', Stachl.Controller);

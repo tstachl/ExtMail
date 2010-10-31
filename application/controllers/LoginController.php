@@ -10,7 +10,41 @@ class LoginController extends Zend_Controller_Action
 
     public function indexAction()
     {
-        // action body
+        
+    }
+    
+    public function logoutAction()
+    {
+        Zend_Auth::getInstance()->clearIdentity();
+        return $this->_helper->redirector('index');
+    }
+    
+    public function processAction()
+    {
+        $request = $this->getRequest();
+        
+        if ($request->isPost()) {
+            $adapter = $this->getAuthAdapter($request->getPost());
+            $auth = Zend_Auth::getInstance();
+            $result = $auth->authenticate($adapter);
+            
+            if ($result->isValid()) {
+                $storage = $auth->getStorage();
+                $storage->write($adapter->getResultRowObject(array(
+                    'username',
+                    'password',
+                    'host',
+                    'port',
+                    'ssl'
+                )));
+                
+                return $this->_helper->redirector('index', 'index');
+            }
+            
+            return $this->_helper->redirector('index');
+        }
+        
+        return $this->_helper->redirector('index');
     }
 	
 	/**
@@ -19,18 +53,14 @@ class LoginController extends Zend_Controller_Action
 	 * @param array $params holding the credentials
 	 */
 	public function getAuthAdapter(array $params)
-	{		
-		$authAdapter = new Zend_Auth_Adapter_DbTable(
-			Zend_Db_Table::getDefaultAdapter(),
-			'user',
-			'username',
-			'password'
+	{
+		$authAdapter = new Stachl_Auth_Adapter_Imap(
+			(isset($params['host']) ? $params['host'] : $this->_helper->config('application')->authentication->host),
+			(isset($params['port']) ? $params['port'] : $this->_helper->config('application')->authentication->port),
+			(isset($params['ssl']) ? $params['ssl'] : $this->_helper->config('application')->authentication->ssl)
 		);
 		
-		$user = new MyBills_Model_UserMapper();
-		$user->findByUsername($params['username']);
-		
 		return $authAdapter->setIdentity($params['username'])
-						   ->setCredential(Stachl_Utilities::crypt($params['password'], $user->password));
+						   ->setCredential($params['password']);
 	}
 }

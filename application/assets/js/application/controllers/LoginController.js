@@ -1,6 +1,6 @@
 Ext.ns('ExtMail.Controllers');
 ExtMail.Controllers.LoginController = Ext.extend(Stachl.Controller, {
-	title: 'ExtMail - Login',
+	title: 'Login - ExtMail - Stachl.me',
 	copyright: '© 2010 by <a href="http://www.stachl.me/" target="_blank" title="Stachl.me">Stachl.me</a>',
 	show: function() {
 		this.loginWindow = new ExtMail.Login.Window({
