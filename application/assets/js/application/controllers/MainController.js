@@ -16,6 +16,7 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 	addDefs: function() {
 		this.defs.add('emailgrid', new Stachl.StoreDef({
 			message: {},
+			folder: {},
 			subject: {
 				grid: {
 					header: 'Subject',

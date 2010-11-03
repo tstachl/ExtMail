@@ -1,4 +1,4 @@
-h1,h2,h3,h4,h5,h6 {
+*,html,body,h1,h2,h3,h4,h5,h6 {
 	font-family: HelveticaNeue,'Helvetica Neue',Helvetica,Arial,Verdana,Geneva,sans-serif;	
 }
 
@@ -41,4 +41,28 @@ div.newemails {
 .emailrow.answered .x-grid3-col-0 {
 	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
 	padding-left: 26px;
+}
+
+.preview div.email-header {
+	background: #F1F2F4;
+	border-bottom: 1px solid #DADADB;
+	padding: 5px;
+}
+
+.preview div.email-date {
+	color: #555555;
+	display: inline;
+	float: right;
+	font-size: 11px;
+	font-weight: normal;
+}
+
+.preview h4.email-from {
+	color: #555555;
+	font-size: 11px;
+	font-weight: normal;
+}
+
+.preview div.email-body {
+	padding: 10px;
 }

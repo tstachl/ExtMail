@@ -21,38 +21,65 @@ class EmailController extends Zend_Controller_Action
     
     public function messagesAction()
     {
+        echo('<pre>');
+        echo(time() . "\n");
     	$req = $this->getRequest();
     	$this->getMail()->selectFolder($req->getParam('folder'));
     	$messages = array();
     	$limit = ((int)$req->getParam('start') + (int)$req->getParam('limit'));
     	$start = ((int)$req->getParam('start') + 1);
-    	
+    	echo(time() . "\n");
     	for ($i = $start; $i <= (($limit <= $this->getMail()->countMessages()) ? $limit : $this->getMail()->countMessages()); $i++) {
-    		$message = $this->getMessage($i);
-    		$messages[] = array(
-    			'message'	 => $i,
-    			'subject'    => $message->subject,
-    			'sender'     => $message->from,
-    			'date'	     => $message->date,
-    			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
-    			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
-    			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
-    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED)
-    		);
+    	    echo(time() . "\n");
+    	    #$msg = new Zend_Mail_Message(array('raw' => getContent()));
+    	    if ($this->getMail()->getMessage($i)->countParts() > 0) {
+                var_dump($this->getMail()->getMessage($i)->getPart(1)->getContent());
+    	    } else {
+                var_dump($this->getMail()->getMessage($i)->getContent());
+    	    }
+    	    var_dump($this->getMail()->getMessage($i)->countParts());
+            echo(time() . "\n");
     	}
     	
     	echo(Zend_Json::encode(array(
     		'messages' => $messages,
     		'total' => $this->getMail()->countMessages()
-    	)));
+    	)) . "\n");
+    	echo(time() . "\n");
+        echo('</pre>');
     	die();
+    }
+    
+    public function bodyAction()
+    {
+        $folder = $this->getRequest()->getParam('folder');
+        $message = $this->getRequest()->getParam('message');
+        
+        $this->getMail()->selectFolder($folder);
+        $part = $message = $this->getMail()->getMessage($message);
+        while ($part->isMultipart()) {
+            $part = $message->getPart(1);
+        }
+        
+        $result = array(
+            'content-type' => strtok($part->contentType, ';'),
+            'body'		   => $part->getContent()
+        );
+        echo(Zend_Json::encode($result));
+        die();
     }
     
     public function testAction()
     {
-
-    	
-
+        $this->getMail()->selectFolder('INBOX');
+        $part = $message = $this->getMail()->getMessage(1);
+        while ($part->isMultipart()) {
+            $part = $message->getPart(1);
+        }
+        echo 'Type of this part is ' . strtok($part->contentType, ';') . "\n";
+        echo "Content:\n";
+        echo $part->getContent();
+        die();
     }
     
     protected function recursiveFolderList($folders)
@@ -67,7 +94,7 @@ class EmailController extends Zend_Controller_Action
                 	'newCount'    => $this->getFolderNewMessages($folder),
                 	'uiProvider'  => 'ExtMail.library.FolderNodeUI',
                 	'classConfig' => array(
-                		'xtype'	  => 'extmail_email_emailgrid',
+                		'xtype'	  => 'extmail_email_emailcontainer',
                     	'folder'  => htmlspecialchars($folder),
                 		'title'	  => htmlspecialchars($localName)
                 	)
@@ -80,7 +107,7 @@ class EmailController extends Zend_Controller_Action
                 	'newCount'    => $this->getFolderNewMessages($folder),
                 	'uiProvider'  => 'ExtMail.library.FolderNodeUI',
                 	'classConfig' => array(
-                		'xtype'	  => 'extmail_email_emailgrid',
+                		'xtype'	  => 'extmail_email_emailcontainer',
                     	'folder'  => htmlspecialchars($folder),
                 		'title'	  => htmlspecialchars($localName)
                 	)
@@ -127,13 +154,30 @@ class EmailController extends Zend_Controller_Action
     	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
     }
     
-    protected function getMessage($index)
+    protected function getMessage($index, $nocache = false)
     {
     	$key = str_replace('.', '_', $this->getMail()->getCurrentFolder()) . '_' . $index;
     	$cache = Zend_Registry::get('cache');
-    	if (!$cache->test($key)) {
-    		$data = serialize($this->getMail()->getMessage($index));
-    		$cache->save($data, $key);
+    	if (!$cache->test($key) || $nocache) {
+    		$part = $message = $this->getMail()->getMessage($index);
+    		while ($part->isMultipart()) {
+    		    $part = $message->getPart(1);
+    		}
+    		$data = serialize(array(
+    			'message'	 => $index,
+    			'subject'    => $message->subject,
+    			'sender'     => $message->from,
+    			'date'	     => $message->date,
+    			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
+    			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
+    			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
+    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED),
+    		    'body'		 => array(
+    		        'content-type' => strtok($part->contentType, ';'),
+    		        'content' 	   => $part->getContent()
+    		    )
+    		));
+    		if (!$nocache) $cache->save($data, $key);
     	} else {
     		$data = $cache->load($key);
     	}
