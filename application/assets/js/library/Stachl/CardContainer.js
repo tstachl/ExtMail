@@ -17,16 +17,17 @@ Ext.extend(Stachl.CardContainer, Ext.Container, {
 		Stachl.CardContainer.superclass.initComponent.apply(this, arguments);
 	},
 	showContent: function(n) {
-		var c = n.attributes.classConfig;
-		c.iconCls = n.attributes.iconCls;
-		c.title = n.attributes.text;
 		try {
-			if ((this.layout.activeItem !== null) && (this.layout.activeItem.destroy === 'function')) {
-				Ext.getCmp(this.layout.activeItem.getId()).destroy();
-				Ext.removeNode(Ext.get(this.layout.activeItem.getId()));
-				Ext.get(this.layout.activeItem.getId()).remove();
+			if ((this.layout.activeItem !== null) && (Ext.isFunction(this.layout.activeItem.destroy))) {
+				var id = this.layout.activeItem.getId();
+				Ext.getCmp(id).destroy();
+				Ext.removeNode(Ext.get(id));
 			}
-			var np = Ext.apply(c);
+			var np = Ext.apply(n.attributes.classConfig, {
+				iconCls: n.attributes.iconCls,
+				title: n.attributes.text,
+				mainpanel: this.mainpanel
+			});
 			var i = this.add(np);
 			this.layout.setActiveItem(i);
 			this.doLayout();

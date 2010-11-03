@@ -45,6 +45,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 		$view->headLink()->appendStylesheet($view->baseUrl() . '/css/reset-min.css')
 						 ->appendStylesheet($view->baseUrl() . '/css/ext-all.css')
 						 ->appendStylesheet($view->baseUrl() . '/css/xtheme-gray.css')
+						 ->appendStylesheet($view->baseUrl() . '/css/ux/ux-all.css')
 						 ->appendStylesheet($view->baseUrl() . '/css/layout.css');
 		
 		$view->headScript()->setCompiler(new Stachl_Javascript_Compiler(APPLICATION_PATH . '/assets'))
@@ -53,13 +54,14 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/ext-3.2.1/ext-all-debug.js', 'text/javascript')
 						   
 						   /* EXT UX */
-						   #->appendFile('/js/library/ext-3.2.1/ux/Ext.ux.Crypto.SHA1.js', 'text/javascript')
+						   ->appendFile('/js/library/ext-3.2.1/ux-all-debug.js', 'text/javascript')
 						   
 						   /* STACHL LIBRARY */
 						   ->appendFile('/js/library/Stachl/Application.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/StoreMgr.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/DefMgr.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/ViewMgr.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/StoreDef.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Controller.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Debug.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Exception.js', 'text/javascript')
@@ -71,7 +73,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/Stachl/TreePanel.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Navigation.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/Grid.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/BufferGrid.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/CardContainer.js', 'text/javascript')
+						   
+						   /* ExtMail Library */
+						   ->appendFile('/js/library/ExtMail/FolderNodeUI.js', 'text/javascript')
 						   
 						   /* ExtMail COMPONENTS */
 						   ->appendFile('/js/application/Application.js', 'text/javascript');
@@ -85,6 +91,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     						   ->appendFile('/js/application/Email/MainPanel.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Navigation.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/CardContainer.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/EmailGrid.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/Status.js', 'text/javascript')
     						   ;
             $controller = 'MainController';
         }
@@ -99,15 +107,43 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 					quicktip: {
 						init: true
 					},
+					ajax: {
+						defaultHeaders: {
+							"User-Agent": "ExtMail",
+							"X-Powered-By": "Thomas Stachl - Stachl.me"
+						},
+						method: "POST"
+					},
 					contextmenu: {
 						disabled: true
 					},
+        			locale: {
+        				language: "en_US"
+        			},
 					controller: new ExtMail.Controllers.' . $controller . '()
 				});
 				Application.run();
 			});
 		');
 
+	}
+	
+	protected function _initCache()
+	{
+    	$frontendOptions = array(
+    		'lifetime' => 7200,
+    		'automatic_serialization' => true
+    	);
+    	$backendOptions = array(
+    		'cache_dir' => realpath(APPLICATION_PATH . '/../tmp')
+    	);
+    	
+    	$cache = Zend_Cache::factory('Core',
+    								 'File',
+    								 $frontendOptions,
+    								 $backendOptions);
+    	
+		Zend_Registry::set('cache', $cache);
 	}
 
 }

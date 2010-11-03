@@ -16,3 +16,29 @@ p.copyright {
 	font-size: 70%;
 	text-align: right;
 }
+
+.ico_folder {
+	background:url(../images/icons/small/folder.png) no-repeat left center !important;
+}
+
+.emailrow td div {
+	line-height: 16px;
+	font-weight: bold;
+}
+
+.emailrow.seen td div {
+	font-weight: normal;
+}
+
+div.newemails {
+	font-weight: bold;
+}
+
+.emailrow.deleted td div {
+	text-decoration: line-through;
+}
+
+.emailrow.answered .x-grid3-col-0 {
+	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
+	padding-left: 26px;
+}

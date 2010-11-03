@@ -40,8 +40,8 @@ Ext.extend(Stachl.Navigation.Accordion, Stachl.AutoLoadPanel, {
 		}
 	},
 	onNodeClick: function(n, e) {
-		if (this.CardContainer != null) {
-			this.CardContainer.showContent(n);
+		if (this.mainpanel.getCenter() != false) {
+			this.mainpanel.getCenter().showContent(n);
 		}
 	}
 });
@@ -58,37 +58,38 @@ Ext.extend(Stachl.Navigation.Tree, Ext.tree.TreePanel, {
 		Stachl.Navigation.Tree.superclass.initComponent.call(this);
 		
 		var config = {
+			layout: 'fit',
+			listeners: {
+				click: this.clicked,
+				scope: this
+			},
+			loadingText: _('Please wait ...'),
 			loader: new Ext.tree.TreeLoader({
-				url: this.url
+				url: this.url,
+				listeners: {
+					load: function() {
+						this.loadingMask.hide();
+						this.selectPath(this.getRootNode().firstChild.getPath());
+						this.clicked();
+					},
+					scope: this
+				}
 			}),
+			useArrows: true,
 			root: new Ext.tree.AsyncTreeNode(),
 			rootVisible: false
 		};
 		Ext.apply(this, config);
 		Stachl.Navigation.Tree.superclass.initComponent.apply(this, arguments);
 	},
-    onBeforeExpand: function(p) {
-    	if (p.preload === false) {
-    		p.getRootNode().render();
-    		p.preload = true;
-    	}
-    },
-	afterAdd: function() {
-		Stachl.Navigation.Tree.superclass.afterAdd.call(this);
-		for (var i in this.items.items) {
-			if (i == parseInt(i)) {
-				this.items.items[i].on({
-					scope: this,
-					'click': this.onNodeClick,
-					'beforeexpand': this.onBeforeExpand,
-					stopEvent:true
-				});
-			}
-		}
+	afterRender: function() {
+		Stachl.Navigation.Tree.superclass.afterRender.call(this);
+		this.loadingMask = new Ext.LoadMask(this.body, {msg: this.loadingText});
+		this.loadingMask.show();
 	},
-	onNodeClick: function(n, e) {
-		if (this.CardContainer != null) {
-			this.CardContainer.showContent(n);
+	clicked: function(n) {
+		if (this.mainpanel.getCenter() != false) {
+			this.mainpanel.getCenter().showContent((Ext.isDefined(n) ? n : this.getSelectionModel().getSelectedNode()));
 		}
 	}
 });
