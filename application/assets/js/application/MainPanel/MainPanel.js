@@ -1,27 +1,36 @@
 Ext.ns('ExtMail');
-ExtMail.MainPanel = Ext.extend(Ext.TabPanel, {
+ExtMail.MainPanel = Ext.extend(Ext.ux.GroupTabPanel, {
 	initComponent: function() {
 		var config = {
-			style: 'background: transparent;',
+			tabWidth: 130,
 			cls: 'extmail-tabpanel',
-			activeItem: 0,
+			activeGroup: 0,
 			items: [{
-				title: _('Email'),
-				xtype: 'extmail_email_mainpanel'
+				mainItem: 0,
+				items: [{
+					title: _('Email'),
+					xtype: 'extmail_email_mainpanel'
+				}]
 			}, {
-				title: _('Address Book'),
-				html: 'Address Book'
+				items: [{
+					title: _('Address Book'),
+					html: 'Address Book'
+				}]
 			}, {
-				title: _('Settings'),
-				html: 'Settings',
-				tabCls: 'settings'
+				items: [{
+					title: _('Settings'),
+					html: 'Settings',
+					tabCls: 'settings'
+				}]
 			}, {
-				title: _('Logout'),
-				listeners: {
-					beforeshow: function() {
-						window.location.href = '/login/logout';
+				items: [{
+					title: _('Logout'),
+					listeners: {
+						beforeshow: function() {
+							window.location.href = '/login/logout';
+						}
 					}
-				}
+				}]
 			}]
 		};
 		
