@@ -6,6 +6,8 @@ Stachl.CardContainer = function(config) {
 };
 
 Ext.extend(Stachl.CardContainer, Ext.Container, {
+	addTitle: true,
+	addIconCls: true,
 	initComponent: function() {
 		Stachl.CardContainer.superclass.initComponent.call(this);
 		
@@ -24,8 +26,8 @@ Ext.extend(Stachl.CardContainer, Ext.Container, {
 				Ext.removeNode(Ext.get(id));
 			}
 			var np = Ext.apply(n.attributes.classConfig, {
-				iconCls: n.attributes.iconCls,
-				title: n.attributes.text,
+				iconCls: (this.addIconCls ? n.attributes.iconCls : ''),
+				title: (this.addTitle ? n.attributes.text : ''),
 				mainpanel: this.mainpanel
 			});
 			var i = this.add(np);

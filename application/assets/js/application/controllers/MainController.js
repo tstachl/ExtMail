@@ -5,9 +5,25 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 	initComponent: function() {
 		this.addDefs();
 		this.addStores();
-	
+		
+		Ext.apply(this, {
+			layout: 'border',
+			border: false,
+			region: 'center',
+			style: '',
+			items: [this.getMainContainer()]
+		});
+		
 		ExtMail.Controllers.MainController.superclass.initComponent.call(this);
 	},
+	setMainContainer: function() {
+		this.mainContainer = new Ext.Container({
+	    	border: false,
+	    	region: 'center',
+	    	layout: 'fit'
+		});
+		return this;
+	},	
 	show: function() {
 		this.views.add('mainpanel', new ExtMail.MainPanel());
 		this.setActiveItem('mainpanel').doLayout();

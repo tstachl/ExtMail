@@ -38,9 +38,12 @@ div.newemails {
 	text-decoration: line-through;
 }
 
-.emailrow.answered .x-grid3-col-0 {
-	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
+.emailrow .x-grid3-cell-first .x-grid3-cell-inner {
 	padding-left: 26px;
+}
+
+.answered .x-grid3-col-0 {
+	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
 }
 
 .preview div.email-header {

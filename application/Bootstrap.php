@@ -87,13 +87,14 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         } else {
             $view->headScript()->appendFile('/js/application/controllers/MainController.js', 'text/javascript')
     						   ->appendFile('/js/application/MainPanel/MainPanel.js', 'text/javascript')
+    						   ->appendFile('/js/application/MainPanel/Navigation.js', 'text/javascript')
+    						   ->appendFile('/js/application/MainPanel/CardContainer.js', 'text/javascript')
+    						   ->appendFile('/js/application/MainPanel/Status.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/MainPanel.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Navigation.js', 'text/javascript')
-    						   ->appendFile('/js/application/Email/CardContainer.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailContainer.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailGrid.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Preview.js', 'text/javascript')
-    						   ->appendFile('/js/application/Email/Status.js', 'text/javascript')
     						   ;
         }
 

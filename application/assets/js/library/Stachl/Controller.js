@@ -9,44 +9,40 @@ Stachl.Controller = Ext.extend(Ext.Container, {
 	forceLayout: true,
 	isController: true,
 	titleId: null,
-	initComponent: function() {
-		Stachl.Controller.superclass.initComponent.call(this);
-				
-		var config = {
+	initComponent: function() {	
+		this.titleId = Ext.id();
+		
+		Ext.applyIf(this, {
 			flex: 16,
 			layout: 'border',
 			border: false,
 			region: 'center',
-			style: 'padding-top:5px;background:transparent;'
-		};
-		Ext.apply(this, config)
-		
-		this.titleId = Ext.id();
-		
-		var items = [{
-	    	xtype: 'container',
-	    	region: 'north',
-	    	layout: 'column',
-	    	height: 50,
-	    	items: [{
-	    		xtype: 'box',
-		    	autoEl: {
-	    			id: this.titleId,
-	    			tag: 'div',
-	    			html: '<h1><span>' + this.title + '</span></h1>',
-	    			cls: 'logo'
-	    		}
+			style: 'padding-top:5px;background:transparent;',
+			items: [{
+		    	xtype: 'container',
+		    	region: 'north',
+		    	layout: 'column',
+		    	height: 50,
+		    	items: [{
+		    		xtype: 'box',
+			    	autoEl: {
+		    			id: this.titleId,
+		    			tag: 'div',
+		    			html: '<h1><span>' + this.title + '</span></h1>',
+		    			cls: 'logo'
+		    		}
+			    }]
+			}, this.getMainContainer() , {
+				xtype:'box',
+				region:'south',
+				autoEl:{
+					tag:'div',
+					html:'<p class="copyright">' + this.copyright + '</p>'
+				}
 		    }]
-		}, this.getMainContainer() , {
-			xtype:'box',
-			region:'south',
-			autoEl:{
-				tag:'div',
-				html:'<p class="copyright">' + this.copyright + '</p>'
-			}
-	    }];		
+		});
 		
-		this.add(items);
+		Stachl.Controller.superclass.initComponent.call(this);
 	},
 	show: function() {},	
 	setMainContainer: function() {

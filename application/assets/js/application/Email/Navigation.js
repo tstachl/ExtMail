@@ -4,7 +4,6 @@ ExtMail.Email.Navigation = Ext.extend(Stachl.Navigation.Tree, {
 		ExtMail.Email.Navigation.superclass.initComponent.call(this);
 		
 		var config = {
-			title: _('Folders'),
 			url: '/email/folders'
 		};
 		Ext.apply(this, config);

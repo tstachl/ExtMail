@@ -5,37 +5,32 @@ Stachl.Application = Ext.extend(Ext.Viewport, {
 	localizer: null,
 	
 	initComponent: function() {
-		Stachl.Application.superclass.initComponent.call(this, arguments);
-
 		this.addListener('beforerender', this.setOptions);
 		
-		var config = {
+		Ext.applyIf(this, {
 			layout: {
 				type: 'hbox',
 				align: 'stretch'
 			},
-			border: false
-		};
-		Ext.apply(this, config);
+			border: false,
+			items: [{
+				xtype: 'box',
+				flex: 1,
+				autoEl: {
+					tag: 'div',
+					html: '<br />'
+				}
+			}, this.getController(), {
+				xtype: 'box',
+				flex: 1,
+				autoEl: {
+					tag: 'div',
+					html: '<br />'
+				}
+			}]
+		});
 		
-		var items = [{
-			xtype: 'box',
-			flex: 1,
-			autoEl: {
-				tag: 'div',
-				html: '<br />'
-			}
-		}, this.getController(), {
-			xtype: 'box',
-			flex: 1,
-			autoEl: {
-				tag: 'div',
-				html: '<br />'
-			}
-		}];
-		this.add(items);
-		
-		this.instance = this;
+		Stachl.Application.superclass.initComponent.call(this);
 	},
 	
 	setEnvironment: function(s) {
