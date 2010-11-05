@@ -36,4 +36,19 @@ class Stachl_Utilities
 		return $salt . hash('sha512', $config->crypt->staticsalt . $clear . $salt);
 	}
 	
+	public static function checkQuotedPrintables($string)
+	{
+	    if (preg_match_all('/' . implode('|', Zend_Mime::$qpReplaceValues) . '|=3D/i', $string, $matches)) {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	public static function utf8Encode($string)
+	{
+	    if (($encoding = mb_detect_encoding($string)) != 'UTF-8') {
+	        return utf8_encode($string);
+	    }
+	    return $string;
+	}
 }

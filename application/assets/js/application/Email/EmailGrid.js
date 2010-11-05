@@ -5,8 +5,7 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 			Ext.StoreMgr.add('emailgrid_' + this.folder, new Ext.data.JsonStore({
 				url: '/email/messages',
 				baseParams: {
-					folder: this.folder,
-					preview: ExtMail.Instance.getInstance().options.preview
+					folder: this.folder
 				},
 				root: 'messages',
 				totalProperty: 'total',

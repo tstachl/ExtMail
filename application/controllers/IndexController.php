@@ -6,13 +6,6 @@ class IndexController extends Zend_Controller_Action
     public function preDispatch()
     {
 		parent::preDispatch();
-		
-        $ping = new Stachl_Ping($this->_helper->config('application')->authentication->host, 1);
-        
-        $preview = '0';
-        if ($ping->ping() && ($ping->getMax() < 100)) {
-        	$preview = '1';
-        }
         
 		$this->view->headScript()->appendScript('
 			_ = function(key) {
@@ -35,9 +28,6 @@ class IndexController extends Zend_Controller_Action
 					},
         			locale: {
         				language: "en_US"
-        			},
-        			options: {
-        				preview: ' . $preview . '
         			},
 					controller: new ExtMail.Controllers.MainController()
 				});

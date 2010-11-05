@@ -15,8 +15,7 @@ class EmailController extends Zend_Controller_Action
     public function foldersAction()
     {
         $folders = $this->cleanInbox($this->recursiveFolderList($this->getMail()->getFolders()));
-        echo(Zend_Json::encode($folders));
-        die();
+        return $this->_helper->output($folders);
     }
     
     public function messagesAction()
@@ -24,17 +23,18 @@ class EmailController extends Zend_Controller_Action
     	$req = $this->getRequest();
     	$this->getMail()->selectFolder($req->getParam('folder'));
     	$messages = array();
-    	$limit = ((int)$req->getParam('start') + (int)$req->getParam('limit'));
-    	$start = ((int)$req->getParam('start') + 1);
-    	for ($i = $start; $i <= (($limit <= $this->getMail()->countMessages()) ? $limit : $this->getMail()->countMessages()); $i++) {
-			$messages[] = $this->getMessage($i, $req->getParam('preview'));
+    	$range = $this->messageRange((int)$req->getParam('start'), ((int)$req->getParam('start') + (int)$req->getParam('limit')));
+        
+    	while ($range[0] != $range[1]) {
+    	    $messages[] = $this->getMessage($range[0]);
+    	    if ($range[0] < $range[1]) $range[0]++;
+    	    else $range[0]--;
     	}
     	
-    	echo(Zend_Json::encode(array(
+    	return $this->_helper->output(array(
     		'messages' => $messages,
     		'total' => $this->getMail()->countMessages()
-    	)));
-    	die();
+    	));
     }
     
     public function bodyAction()
@@ -43,27 +43,42 @@ class EmailController extends Zend_Controller_Action
         $message = $this->getRequest()->getParam('message');
         
         $this->getMail()->selectFolder($folder);
-        $part = $message = $this->getMail()->getMessage($message);
-        while ($part->isMultipart()) {
-            $part = $message->getPart(1);
+        $message = $this->getMail()->getMessage($message);
+        $result = array();
+        if ($message->countParts()) {
+            foreach (new RecursiveIteratorIterator($message) as $part) {
+                switch (strtok($part->contentType, ';')) {
+                    case 'text/plain':
+                    case 'text/html':
+                        $txt = Stachl_Utilities::utf8Encode((string)$part);
+                        if (Stachl_Utilities::checkQuotedPrintables($txt)) {
+                            $txt = quoted_printable_decode($txt);
+                        }
+                        $washer = @new Stachl_Washtml(array(
+                            'allow_remote' => false
+                        ));
+                        $txt = @$washer->wash($txt);
+                        $txt = Stachl_Mail_Enrich::toHtml($txt);
+                        $result[strtok($part->contentType, ';')] = $txt;
+                        break;
+                    default:
+                        continue;
+                        break;
+                }
+            }
+        } else {
+            $txt = (string)$message;
+            if (Stachl_Utilities::checkQuotedPrintables($txt)) {
+                $txt = quoted_printable_decode($txt);
+            }
+            $result[strtok($message->contentType, ';')] = htmlentities($txt);
         }
         
-        $result = array(
-            'content-type' => strtok($part->contentType, ';'),
-            'body'		   => $part->getContent()
-        );
-        echo(Zend_Json::encode($result));
-        die();
+        return $this->_helper->output($result);
     }
     
     public function testAction()
     {
-        $ping = new Stachl_Ping('w3agency.net');
-        if ($ping->ping()) {
-        	var_dump($ping);
-        } else {
-        	var_dump('Failed');
-        }
         die('testAction');
     }
     
@@ -139,21 +154,12 @@ class EmailController extends Zend_Controller_Action
     	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
     }
     
-    protected function getMessage($index, $preview = false)
+    protected function getMessage($index)
     {
     	$key = str_replace('.', '_', $this->getMail()->getCurrentFolder()) . '_' . $index;
     	$cache = Zend_Registry::get('cache');
     	if (!$cache->test($key)) {
-    		$contentType = '';
-    		$content = '';
-	    	$part = $message = $this->getMail()->getMessage($index);
-    		if ($preview) {
-	    		while ($part->isMultipart()) {
-	    		    $part = $message->getPart(1);
-	    		}
-	    		$contentType = strtok($part->contentType, ';');
-	    		$content = $part->getContent();
-    		}
+	    	$message = $this->getMail()->getMessage($index);
     		$data = serialize(array(
     			'message'	 => $index,
     			'subject'    => $message->subject,
@@ -162,11 +168,7 @@ class EmailController extends Zend_Controller_Action
     			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
     			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
     			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
-    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED),
-    		    'body'		 => array(
-    		        'content-type' => $contentType,
-    		        'content' 	   => $content
-    		    )
+    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED)
     		));
     		$cache->save($data, $key);
     	} else {
@@ -174,5 +176,25 @@ class EmailController extends Zend_Controller_Action
     	}
     	
     	return unserialize($data);
+    }
+    
+    protected function messageRange($start, $limit)
+    {
+        $sort  = 'DESC';
+        $count = $this->getMail()->countMessages();
+        
+        if ($sort === 'DESC') {
+            $begin = ($start == 0) ? $count : $start;
+            $end   = $begin - $limit;
+        } else {
+            $begin = $start + 1;
+            $end   = $begin + $limit;
+        }
+        
+        if ($begin < 1) $begin = 1;
+        if ($end < 1) $end = 1;
+        if ($end > $count) $end = $count;
+        
+        return array($begin, $end);
     }
 }
