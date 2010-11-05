@@ -14,7 +14,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		this.previewSouth = Ext.id();
 		this.previewEast = Ext.id();
 		
-		this.add([{
+		this.add({
 			xtype: 'extmail_email_emailgrid',
 			id: this.gridId,
 			region: 'center',
@@ -24,18 +24,22 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				rowclick: this.rowClick,
 				scope: this
 			}
-		}, {
-			xtype: 'extmail_email_preview',
-			id: this.previewSouth,
-			region: 'south',
-			height: 300,
-			split: true,
-			mainpanel: this.mainpanel,
-			folder: this.folder
-		}]);
+		});
+		
+		if (ExtMail.Instance.getInstance().options.preview) {
+			this.add({
+				xtype: 'extmail_email_preview',
+				id: this.previewSouth,
+				region: 'south',
+				height: 300,
+				split: true,
+				mainpanel: this.mainpanel,
+				folder: this.folder
+			});
+		}
 	},
 	rowClick: function(grid, rowIndex, e) {
-		if (grid.getSelectionModel().getCount() === 1) {
+		if (grid.getSelectionModel().getCount() === 1 && ExtMail.Instance.getInstance().options.preview) {
 			var r = grid.getSelectionModel().getSelected();
 			this.getPreviewPanel().getTemplate().overwrite(this.getPreviewPanel().body, r.data);
 		}

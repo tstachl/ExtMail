@@ -21,32 +21,19 @@ class EmailController extends Zend_Controller_Action
     
     public function messagesAction()
     {
-        echo('<pre>');
-        echo(time() . "\n");
     	$req = $this->getRequest();
     	$this->getMail()->selectFolder($req->getParam('folder'));
     	$messages = array();
     	$limit = ((int)$req->getParam('start') + (int)$req->getParam('limit'));
     	$start = ((int)$req->getParam('start') + 1);
-    	echo(time() . "\n");
     	for ($i = $start; $i <= (($limit <= $this->getMail()->countMessages()) ? $limit : $this->getMail()->countMessages()); $i++) {
-    	    echo(time() . "\n");
-    	    #$msg = new Zend_Mail_Message(array('raw' => getContent()));
-    	    if ($this->getMail()->getMessage($i)->countParts() > 0) {
-                var_dump($this->getMail()->getMessage($i)->getPart(1)->getContent());
-    	    } else {
-                var_dump($this->getMail()->getMessage($i)->getContent());
-    	    }
-    	    var_dump($this->getMail()->getMessage($i)->countParts());
-            echo(time() . "\n");
+			$messages[] = $this->getMessage($i, $req->getParam('preview'));
     	}
     	
     	echo(Zend_Json::encode(array(
     		'messages' => $messages,
     		'total' => $this->getMail()->countMessages()
-    	)) . "\n");
-    	echo(time() . "\n");
-        echo('</pre>');
+    	)));
     	die();
     }
     
@@ -71,15 +58,13 @@ class EmailController extends Zend_Controller_Action
     
     public function testAction()
     {
-        $this->getMail()->selectFolder('INBOX');
-        $part = $message = $this->getMail()->getMessage(1);
-        while ($part->isMultipart()) {
-            $part = $message->getPart(1);
+        $ping = new Stachl_Ping('w3agency.net');
+        if ($ping->ping()) {
+        	var_dump($ping);
+        } else {
+        	var_dump('Failed');
         }
-        echo 'Type of this part is ' . strtok($part->contentType, ';') . "\n";
-        echo "Content:\n";
-        echo $part->getContent();
-        die();
+        die('testAction');
     }
     
     protected function recursiveFolderList($folders)
@@ -154,14 +139,20 @@ class EmailController extends Zend_Controller_Action
     	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
     }
     
-    protected function getMessage($index, $nocache = false)
+    protected function getMessage($index, $preview = false)
     {
     	$key = str_replace('.', '_', $this->getMail()->getCurrentFolder()) . '_' . $index;
     	$cache = Zend_Registry::get('cache');
-    	if (!$cache->test($key) || $nocache) {
-    		$part = $message = $this->getMail()->getMessage($index);
-    		while ($part->isMultipart()) {
-    		    $part = $message->getPart(1);
+    	if (!$cache->test($key)) {
+    		$contentType = '';
+    		$content = '';
+	    	$part = $message = $this->getMail()->getMessage($index);
+    		if ($preview) {
+	    		while ($part->isMultipart()) {
+	    		    $part = $message->getPart(1);
+	    		}
+	    		$contentType = strtok($part->contentType, ';');
+	    		$content = $part->getContent();
     		}
     		$data = serialize(array(
     			'message'	 => $index,
@@ -173,11 +164,11 @@ class EmailController extends Zend_Controller_Action
     			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
     			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED),
     		    'body'		 => array(
-    		        'content-type' => strtok($part->contentType, ';'),
-    		        'content' 	   => $part->getContent()
+    		        'content-type' => $contentType,
+    		        'content' 	   => $content
     		    )
     		));
-    		if (!$nocache) $cache->save($data, $key);
+    		$cache->save($data, $key);
     	} else {
     		$data = $cache->load($key);
     	}

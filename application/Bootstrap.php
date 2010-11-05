@@ -84,7 +84,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         if (!Zend_Auth::getInstance()->hasIdentity()) {
             $view->headScript()->appendFile('/js/application/controllers/LoginController.js', 'text/javascript')
     						   ->appendFile('/js/application/Login/LoginWindow.js', 'text/javascript');
-            $controller = 'LoginController';
         } else {
             $view->headScript()->appendFile('/js/application/controllers/MainController.js', 'text/javascript')
     						   ->appendFile('/js/application/MainPanel/MainPanel.js', 'text/javascript')
@@ -96,37 +95,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     						   ->appendFile('/js/application/Email/Preview.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Status.js', 'text/javascript')
     						   ;
-            $controller = 'MainController';
         }
 
-		$view->headScript()->appendScript('
-			_ = function(key) {
-				return Application.getLocalizer().getMsg(key);
-			};
-			Ext.onReady(function() {
-				Application = new ExtMail.Application({
-					environment: "' . APPLICATION_ENV . '",
-					quicktip: {
-						init: true
-					},
-					ajax: {
-						defaultHeaders: {
-							"User-Agent": "ExtMail",
-							"X-Powered-By": "Thomas Stachl - Stachl.me"
-						},
-						method: "POST"
-					},
-					contextmenu: {
-						disabled: true
-					},
-        			locale: {
-        				language: "en_US"
-        			},
-					controller: new ExtMail.Controllers.' . $controller . '()
-				});
-				Application.run();
-			});
-		');
 
 	}
 	

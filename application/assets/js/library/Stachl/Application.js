@@ -34,6 +34,8 @@ Stachl.Application = Ext.extend(Ext.Viewport, {
 			}
 		}];
 		this.add(items);
+		
+		this.instance = this;
 	},
 	
 	setEnvironment: function(s) {
