@@ -21,4 +21,24 @@
 class Stachl_Mail_Storage_Imap extends Zend_Mail_Storage_Imap
 {
 	
+    /**
+     * set flags for message
+     *
+     * NOTE: this method can't set the recent flag.
+     *
+     * @param  int   $id    number of message
+     * @param  array $flags new flags for message
+     * @throws Zend_Mail_Storage_Exception
+     */
+	public function setFlags($id, $flags, $to = null, $mode = null)
+	{
+	    if (!$this->_protocol->store($flags, $id, $to, $mode)) {
+            /**
+             * @see Zend_Mail_Storage_Exception
+             */
+            require_once 'Zend/Mail/Storage/Exception.php';
+            throw new Zend_Mail_Storage_Exception('cannot set flags, have you tried to set the recent flag or special chars?');
+        }
+	}
+	
 }

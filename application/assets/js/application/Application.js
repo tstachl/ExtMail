@@ -20,6 +20,25 @@ ExtMail.Application = Ext.extend(Stachl.Application, {
 		});
 		
 		ExtMail.Application.superclass.initComponent.call(this);
+		
+		this.ajaxErrorHandler();
+	},
+	ajaxErrorHandler: function() {
+		Ext.Ajax.on('requestexception', function(conn, response, options) {
+			try {
+				var r = Ext.util.JSON.decode(response.responseText);
+			} catch(e) {}
+			if (Ext.isDefined(r) && Ext.isDefined(r.success)) {
+				if (r.success == false) {
+					Ext.Msg.show({
+						title: r.error,
+						msg: r.exception,
+						buttons: Ext.Msg.OK,
+						icon: Ext.Msg.ERROR
+					});
+				}
+			}			
+		}, this);
 	},
 	_run: function() {
 		ExtMail.Application.superclass._run.call(this);

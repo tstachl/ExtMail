@@ -245,6 +245,7 @@ Stachl.BufferGridView = Ext.extend(Ext.grid.GridView, {
 Stachl.BufferGrid = Ext.extend(Ext.grid.GridPanel, {
 	loadMask: true,
 	loading: false,
+	firstLoad: false,
 	initComponent: function() {
 		Stachl.BufferGrid.superclass.initComponent.call(this);
 		Ext.apply(this, {
@@ -263,7 +264,9 @@ Stachl.BufferGrid = Ext.extend(Ext.grid.GridPanel, {
 			vr = gv.getVisibleRows(),
 			cache = gv.cacheSize;
 		if (!this.loading && 
-				(this.getStore().getCount() < (vr.first + vrc + cache))) {
+				(this.getStore().getCount() < (vr.first + vrc + cache)) &&
+				(!this.firstLoad ||
+						(this.getStore().getCount() != this.getStore().getTotalCount()))) {
 			this.loading = true;
 			this.fireEvent('beforeload');
 			this.getStore().load({
@@ -272,6 +275,7 @@ Stachl.BufferGrid = Ext.extend(Ext.grid.GridPanel, {
 					limit: (vr.first + vrc + cache) - this.getStore().getCount()
 				},
 				callback: function() {
+					this.firstLoad = true;
 					this.loading = false;
 					if (this.loadMask) {
 						this.loadMask.hide();

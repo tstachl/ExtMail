@@ -14,36 +14,42 @@ class EmailController extends Zend_Controller_Action
     
     public function foldersAction()
     {
-        $folders = $this->cleanInbox($this->recursiveFolderList($this->getMail()->getFolders()));
-        return $this->_helper->output($folders);
+        return $this->_helper->output(ExtMail_Imap::getInstance()->getCleanedFolderList());
     }
     
-    public function messagesAction()
+    public function readAction()
     {
     	$req = $this->getRequest();
-    	$this->getMail()->selectFolder($req->getParam('folder'));
+    	
+    	$mail = ExtMail_Imap::getInstance($req->getParam('folder'));
     	$messages = array();
-    	$range = $this->messageRange((int)$req->getParam('start'), ((int)$req->getParam('start') + (int)$req->getParam('limit')));
-        
-    	while ($range[0] != $range[1]) {
-    	    $messages[] = $this->getMessage($range[0]);
-    	    if ($range[0] < $range[1]) $range[0]++;
-    	    else $range[0]--;
+    	
+    	foreach ($mail->getMessageList((int)$req->getParam('start'), (int)$req->getParam('limit')) as $index => $message) {
+    		$messages[] = array(
+    			'message'	 => $index,
+    			'subject'    => $message->subject,
+    			'sender'     => $message->from,
+    			'date'	     => $message->date,
+    			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
+    			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
+    			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
+    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED)
+    		);
     	}
     	
     	return $this->_helper->output(array(
     		'messages' => $messages,
-    		'total' => $this->getMail()->countMessages()
+    		'total'    => $mail->getMail()->countMessages()
     	));
     }
     
     public function bodyAction()
     {
-        $folder = $this->getRequest()->getParam('folder');
-        $message = $this->getRequest()->getParam('message');
+    	$mail = ExtMail_Imap::getInstance($this->getRequest()->getParam('folder'));
+    	$id = $this->getRequest()->getParam('message');
+        $message = $mail->getMessage($id, true);
+        $mail->setFlags($id, array(Zend_Mail_Storage::FLAG_SEEN));
         
-        $this->getMail()->selectFolder($folder);
-        $message = $this->getMail()->getMessage($message);
         $result = array();
         if ($message->countParts()) {
             foreach (new RecursiveIteratorIterator($message) as $part) {
@@ -77,124 +83,23 @@ class EmailController extends Zend_Controller_Action
         return $this->_helper->output($result);
     }
     
+    public function flagAction()
+    {
+    	if ($this->getRequest()->getParam('flag') == 1) {
+			ExtMail_Imap::getInstance()->setFlags($this->getRequest()->getParam('message'), array(Zend_Mail_Storage::FLAG_FLAGGED));
+    	} else {
+			ExtMail_Imap::getInstance()->removeFlags($this->getRequest()->getParam('message'), array(Zend_Mail_Storage::FLAG_FLAGGED));
+    	}
+		return $this->_helper->output(array(
+			'success' => true
+		));
+    }
+    
     public function testAction()
     {
+    	$message = $this->getMail()->getMessage($this->getRequest()->getParam('message'));
+    	var_dump(Stachl_Mail_Clean::fixMalform((string)$message->getPart(2)));
         die('testAction');
     }
     
-    protected function recursiveFolderList($folders)
-    {
-        $list = array();
-        foreach ($folders as $localName => $folder) {
-            if ($folder->isLeaf()) {
-                $list[] = array(
-                    'text'        => htmlspecialchars($localName),
-                    'leaf'        => true,
-                	'iconCls'     => 'ico_folder',
-                	'newCount'    => $this->getFolderNewMessages($folder),
-                	'uiProvider'  => 'ExtMail.library.FolderNodeUI',
-                	'classConfig' => array(
-                		'xtype'	  => 'extmail_email_emailcontainer',
-                    	'folder'  => htmlspecialchars($folder),
-                		'title'	  => htmlspecialchars($localName)
-                	)
-                );
-            } else {
-                $list[] = array(
-                    'text'        => htmlspecialchars($localName),
-                    'children'    => $this->recursiveFolderList($folders->getChildren()),
-                	'iconCls'	  => 'ico_folder',
-                	'newCount'    => $this->getFolderNewMessages($folder),
-                	'uiProvider'  => 'ExtMail.library.FolderNodeUI',
-                	'classConfig' => array(
-                		'xtype'	  => 'extmail_email_emailcontainer',
-                    	'folder'  => htmlspecialchars($folder),
-                		'title'	  => htmlspecialchars($localName)
-                	)
-                );
-            }
-        }
-        return $list;
-    }
-    
-    protected function cleanInbox(array $folders)
-    {
-    	$return = $folders[0]['children'];
-    	unset($folders[0]['children']);
-    	$folders[0]['leaf'] = true;
-    	array_unshift($return, $folders[0]);
-    	return $return;
-    }
-    
-    protected function setMail()
-    {
-        $auth = Zend_Auth::getInstance()->getIdentity();
-        $mail = new Zend_Mail_Storage_Imap(array(
-            'host'	   => $auth->host,
-            'user'     => $auth->username,
-            'password' => $auth->password,
-            'port'	   => $auth->port,
-            'ssl'	   => $auth->ssl
-        ));
-        $this->_mail = $mail;
-        return $this;
-    }
-    
-    protected function getMail()
-    {
-    	if (null === $this->_mail) {
-    		$this->setMail();
-    	}
-    	return $this->_mail;
-    }
-    
-    protected function getFolderNewMessages($folder)
-    {
-    	$this->getMail()->selectFolder($folder);
-    	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
-    }
-    
-    protected function getMessage($index)
-    {
-    	$key = str_replace('.', '_', $this->getMail()->getCurrentFolder()) . '_' . $index;
-    	$cache = Zend_Registry::get('cache');
-    	if (!$cache->test($key)) {
-	    	$message = $this->getMail()->getMessage($index);
-    		$data = serialize(array(
-    			'message'	 => $index,
-    			'subject'    => $message->subject,
-    			'sender'     => $message->from,
-    			'date'	     => $message->date,
-    			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
-    			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
-    			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
-    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED)
-    		));
-    		$cache->save($data, $key);
-    	} else {
-    		$data = $cache->load($key);
-    	}
-    	
-    	return unserialize($data);
-    }
-    
-    protected function messageRange($start, $limit)
-    {
-        $sort  = 'DESC';
-        $count = $this->getMail()->countMessages();
-        
-        if ($sort === 'DESC') {
-            $begin = ($start == 0) ? $count : $start;
-            $end   = $begin - $limit;
-        } else {
-            $begin = $start + 1;
-            $end   = $begin + $limit;
-        }
-        
-        if ($begin < 1) $begin = 1;
-        if ($end < 1) $end = 1;
-        if ($end > $count) $end = $count;
-        
-        return array($begin, $end);
-    }
 }

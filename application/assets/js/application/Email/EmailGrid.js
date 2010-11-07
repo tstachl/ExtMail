@@ -1,14 +1,16 @@
 Ext.ns('ExtMail', 'ExtMail.Email');
 ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
+	cellSelectionModel: null,
 	initComponent: function() {
 		if (!Ext.StoreMgr.get('emailgrid_' + this.folder)) {
 			Ext.StoreMgr.add('emailgrid_' + this.folder, new Ext.data.JsonStore({
-				url: '/email/messages',
+				url: '/email/read',
 				baseParams: {
 					folder: this.folder
 				},
 				root: 'messages',
 				totalProperty: 'total',
+				idProperty: 'message',
 				fields: Stachl.DefMgr.get('emailgrid').getStoreFields()
 			}));
 		}
@@ -35,11 +37,15 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 					}
 					return cls;
 				}
+			},
+			listeners: {
+				beforeload: this.beforeLoad,
+				load: this.load,
+				mouseover: this.mouseEvent,
+				mouseout: this.mouseEvent,
+				scope: this
 			}
 		});
-		
-		this.addListener('beforeload', this.beforeLoad);
-		this.addListener('load', this.load);
 		
 		this.tbStatusId = Ext.id();
 		
@@ -63,6 +69,9 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 			var status = String.format(_('{0} of {1} messages'), this.getStore().getCount(), this.getStore().getTotalCount());
 			Ext.getCmp(this.tbStatusId).update(status);
 		}
+	},
+	mouseEvent: function(e) {
+		e.stopEvent();
 	},
 	preload: function() {
 //		if (!this.preloadTask) {

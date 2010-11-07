@@ -37,14 +37,16 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 				grid: {
 					header: 'Subject',
 					width: 450,
-					sortable: true
+					sortable: true,
+					editable: false
 				}
 			},
 			sender: {
 				grid: {
 					header: 'Sender',
 					width: 240,
-					sortable: true
+					sortable: true,
+					editable: false
 				}
 			},
 			date: {
@@ -53,7 +55,8 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 					width: 160,
 					sortable: true,
 					xtype: 'datecolumn',
-					format: 'd.m.Y H:i'
+					format: 'd.m.Y H:i',
+					editable: false
 				},
 				store: {
 					type: 'date'

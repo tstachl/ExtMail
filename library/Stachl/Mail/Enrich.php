@@ -28,7 +28,6 @@
 class Stachl_Mail_Enrich
 {
     
-    
     /**
      * newlines() - remove single newlines, convert N newlines to N-1
      * 

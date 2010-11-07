@@ -1,0 +1,12 @@
+.ico_logout {
+	background:url(../images/icons/small/door_open.png) no-repeat left center !important;
+}
+.ico_email {
+	background:url(../images/icons/small/email.png) no-repeat left center !important;
+}
+.ico_folder {
+	background:url(../images/icons/small/folder.png) no-repeat left center !important;
+}
+.answered .x-grid3-col-0 {
+	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
+}

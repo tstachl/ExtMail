@@ -37,24 +37,48 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 	},
 	rowClick: function(grid, rowIndex, e) {
 		if (grid.getSelectionModel().getCount() === 1) {
-			var r  = grid.getSelectionModel().getSelected(),
-				me = this;
-			this.getPreviewPanel().showLoading();
-			Ext.Ajax.request({
-				url: '/email/body',
-				params: {
-					folder: this.folder,
-					message: r.data.message
-				},
-				success: function(d) {
-					var b = me.prepareBody(Ext.util.JSON.decode(d.responseText));
-					me.overwriteTemplates(r.data, b);
-					me.resizePreviewPanel();
-					me.getPreviewPanel().scrollToTop();
-					me.getPreviewPanel().hideLoading();
-				},
-				failure: function() {}
-			});
+			var r    = grid.getSelectionModel().getSelected(),
+				me   = this,
+				cell = e.getTarget('.x-grid3-col');
+			
+			if ('flag' == grid.getColumnModel().getDataIndex(cell.cellIndex)) {
+				if (r.get('flag')) {
+					this.mainpanel.getSouth().showBusy(String.format(_('Remove flag from: "{0}" ...'), r.get('subject')));
+				} else {
+					this.mainpanel.getSouth().showBusy(String.format(_('Add flag to: "{0}" ...'), r.get('subject')));
+				}
+				
+				Ext.Ajax.request({
+					url: '/email/flag',
+					params: {
+						message: r.get('message'),
+						flag: (r.get('flag') ? 0 : 1)
+					},
+					success: function() {
+						r.set('flag', (r.get('flag') ? false : true));
+						grid.getStore().commitChanges();
+						me.mainpanel.getSouth().clearStatus();
+					}
+				});
+			} else {
+				this.setRead(r);
+				
+				this.getPreviewPanel().showLoading();
+				Ext.Ajax.request({
+					url: '/email/body',
+					params: {
+						folder: this.folder,
+						message: r.get('message')
+					},
+					success: function(d) {
+						var b = me.prepareBody(Ext.util.JSON.decode(d.responseText));
+						me.overwriteTemplates(r.data, b);
+						me.resizePreviewPanel();
+						me.getPreviewPanel().scrollToTop();
+						me.getPreviewPanel().hideLoading();
+					}
+				});
+			}
 		}
 	},
 	getPreviewPanel: function() {
@@ -84,6 +108,13 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			t = '<div style="font-family: Courier;">' + Ext.util.Format.trim(t) + '</div>';
 		}
 		return t;
+	},
+	setRead: function(r) {
+		if (r.get('seen') == false) {
+			r.set('seen', true);
+			--this.mainpanel.getWest().findByType('extmail_email_navigation')[0].getSelectionModel().getSelectedNode().attributes.newCount;
+			this.mainpanel.getWest().findByType('extmail_email_navigation')[0].getSelectionModel().getSelectedNode().getUI().newEmailsLayout();
+		}
 	}
 });
 Ext.reg('extmail_email_emailcontainer', ExtMail.Email.EmailContainer);

@@ -16,11 +16,6 @@ p.copyright {
 	font-size: 70%;
 	text-align: right;
 }
-
-.ico_folder {
-	background:url(../images/icons/small/folder.png) no-repeat left center !important;
-}
-
 .emailrow td div {
 	line-height: 16px;
 	font-weight: bold;
@@ -40,10 +35,6 @@ div.newemails {
 
 .emailrow .x-grid3-cell-first .x-grid3-cell-inner {
 	padding-left: 26px;
-}
-
-.answered .x-grid3-col-0 {
-	background: transparent url(../images/icons/small/arrow_turn_right.png) no-repeat 5px 50% !important;
 }
 
 .preview div.email-header {
