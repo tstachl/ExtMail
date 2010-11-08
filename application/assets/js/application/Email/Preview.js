@@ -3,6 +3,7 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 	layout: 'border',
 	borders: false,
 	cls: 'preview',
+	loadMask: null,
 	initComponent: function() {
 		
 		this.headerTpl = new Ext.Template([
@@ -30,8 +31,6 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 			}]
 		});
 		
-		this.loadMask = new Ext.LoadMask(Ext.getBody(), {msg: _('Loading ...')});
-		
 		ExtMail.Email.Preview.superclass.initComponent.call(this);
 	},
 	getTemplate: function() {
@@ -44,8 +43,11 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 		return Ext.getCmp(this.bodyId);
 	},
 	showLoading: function() {
+		if (null === this.loadMask) {
+			this.loadMask = new Ext.LoadMask(this.body, {msg: _('Loading message ...')});
+		}
 		this.loadMask.show();
-		this.mainpanel.getSouth().showBusy(_('Loading preview ...'))
+		this.mainpanel.getSouth().showBusy(_('Loading preview ...'));
 	},
 	hideLoading: function() {
 		this.loadMask.hide();

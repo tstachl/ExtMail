@@ -68,7 +68,9 @@ Ext.extend(Stachl.Navigation.Tree, Ext.tree.TreePanel, {
 				url: this.url,
 				listeners: {
 					load: function() {
-						this.loadingMask.hide();
+						if (this.loadMask) {
+							this.loadingMask.hide();
+						}
 						this.selectPath(this.getRootNode().firstChild.getPath());
 						this.clicked();
 					},
@@ -84,8 +86,10 @@ Ext.extend(Stachl.Navigation.Tree, Ext.tree.TreePanel, {
 	},
 	afterRender: function() {
 		Stachl.Navigation.Tree.superclass.afterRender.call(this);
-		this.loadingMask = new Ext.LoadMask(this.body, {msg: this.loadingText});
-		this.loadingMask.show();
+		if (this.loadMask) {
+			this.loadMask = new Ext.LoadMask(this.body, {msg: this.loadingText});
+			this.loadMask.show();
+		}
 	},
 	clicked: function(n) {
 		if (this.mainpanel.getCenter() != false) {

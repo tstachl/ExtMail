@@ -105,7 +105,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			t = Ext.util.Format.htmlDecode(body['text/plain']);
 			t = Ext.util.Format.nl2br(t);
 			t = Ext.util.Format.stripScripts(t);
-			t = '<div style="font-family: Courier;">' + Ext.util.Format.trim(t) + '</div>';
+			t = '<div style="font-family: Courier; font-size: 0.83em;">' + Ext.util.Format.trim(t) + '</div>';
 		}
 		return t;
 	},

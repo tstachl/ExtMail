@@ -9,10 +9,11 @@ class IndexController extends Zend_Controller_Action
         
 		$this->view->headScript()->appendScript('
 			_ = function(key) {
-				return ExtMail.Instance.getInstance().getLocalizer().getMsg(key);
+				return App.getInstance().getLocalizer().getMsg(key);
 			};
 			Ext.onReady(function() {
-				ExtMail.Instance.getInstance({
+				App.getInstance({
+					loadMask: true,
 					environment: "' . APPLICATION_ENV . '",
 					quicktip: {
 						init: true
@@ -31,7 +32,7 @@ class IndexController extends Zend_Controller_Action
         			},
 					controller: new ExtMail.Controllers.MainController()
 				});
-				ExtMail.Instance.getInstance().run();
+				App.getInstance().run();
 			});
 		');
     }

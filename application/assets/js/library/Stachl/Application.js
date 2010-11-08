@@ -3,8 +3,16 @@ Stachl.Application = Ext.extend(Ext.Viewport, {
 	environment: 'development',
 	controller: null,
 	localizer: null,
+	loadMask: false,
 	
 	initComponent: function() {
+		if (this.loadMask) {
+			this.loadMask = new Ext.LoadMask(Ext.getBody(), {
+				msg: this.getLocalizer().getMsg('Loading Application ...')
+			});
+			this.showLoading();
+		}
+	
 		this.addListener('beforerender', this.setOptions);
 		
 		Ext.applyIf(this, {
@@ -31,6 +39,31 @@ Stachl.Application = Ext.extend(Ext.Viewport, {
 		});
 		
 		Stachl.Application.superclass.initComponent.call(this);
+	},
+	
+	showLoading: function() {
+		if (this.loadMask) {
+			return this.loadMask.show();
+		}
+		return false;
+	},
+	hideLoading: function() {
+		if (this.loadMask) {
+			return this.loadMask.hide();
+		}
+		return false;
+	},
+	isLoadingVisible: function() {
+		if (this.loadMask) {
+			return this.loadMask.el.isVisible();
+		}
+		return false;
+	},
+	updateLoading: function(s) {
+		if (this.loadMask && this.loadMask.el.child('.ext-el-mask-msg').dom.firstChild) {
+			this.loadMask.msg = s;
+			Ext.get(this.loadMask.el.child('.ext-el-mask-msg').dom.firstChild).update(s);
+		}
 	},
 	
 	setEnvironment: function(s) {

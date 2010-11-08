@@ -6,6 +6,7 @@ Stachl.Module = function(config) {
 };
 
 Ext.extend(Stachl.Module, Ext.Panel, {
+	loadingMask: null,
 	north: null,
 	northConfig: {},
 	west: null,
@@ -14,7 +15,7 @@ Ext.extend(Stachl.Module, Ext.Panel, {
 	centerConfig: {},
 	south: null,
 	southConfig: {},
-	initComponent:function(){
+	initComponent:function(){		
 		Stachl.Module.superclass.initComponent.call(this);
 		
 		var config = {
@@ -24,6 +25,7 @@ Ext.extend(Stachl.Module, Ext.Panel, {
 		Ext.apply(this, config);
 		
 		this.addListener('beforerender', this.init);
+		
 	},
 	init: function() {
 		if ((Ext.isString(this.north) && !Ext.isEmpty(this.north))) {

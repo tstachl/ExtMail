@@ -201,7 +201,7 @@ class ExtMail_Imap
 	{
 		$options['default'] = array(
 			'iconCls'     => 'ico_folder',
-			'uiProvider'  => 'ExtMail.library.FolderNodeUI',
+			'uiProvider'  => 'ExtMail.Library.FolderNodeUI',
 			'classConfig' => array(
 				'xtype' => 'extmail_email_emailcontainer',
 				'title' => ''

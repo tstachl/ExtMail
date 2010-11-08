@@ -1,10 +1,13 @@
 Ext.ns('ExtMail', 'ExtMail.Email');
 ExtMail.Email.Navigation = Ext.extend(Stachl.Navigation.Tree, {
 	initComponent: function() {
+		App.getInstance().updateLoading(_('Loading folders ...'));
+	
 		ExtMail.Email.Navigation.superclass.initComponent.call(this);
 		
 		var config = {
-			url: '/email/folders'
+			url: '/email/folders',
+			loadMask: false
 		};
 		Ext.apply(this, config);
 		

@@ -49,7 +49,7 @@ class Stachl_Utilities
 	    if (($encoding = mb_detect_encoding($string)) != 'UTF-8') {
 	        return utf8_encode($string);
 	    }
-	    return $string;
+	    return utf8_decode($string);
 	}
 	
 	public static function makeAbsoluteUrl($path, $base_url)

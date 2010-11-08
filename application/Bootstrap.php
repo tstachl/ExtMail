@@ -47,7 +47,8 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						 ->appendStylesheet($view->baseUrl() . '/css/xtheme-gray.css')
 						 ->appendStylesheet($view->baseUrl() . '/css/ux/ux-all.css')
 						 ->appendStylesheet($view->baseUrl() . '/css/layout.css')
-						 ->appendStylesheet($view->baseUrl() . '/css/icons.css');
+						 ->appendStylesheet($view->baseUrl() . '/css/icons.css')
+						 ->appendStylesheet($view->baseUrl() . '/css/email_preview.css');
 		
 		$view->headScript()->setCompiler(new Stachl_Javascript_Compiler(APPLICATION_PATH . '/assets'))
 						   /* EXT LIBRARY */

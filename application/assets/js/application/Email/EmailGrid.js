@@ -2,6 +2,8 @@ Ext.ns('ExtMail', 'ExtMail.Email');
 ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 	cellSelectionModel: null,
 	initComponent: function() {
+		App.getInstance().updateLoading(_('Loading messages ...'));
+		
 		if (!Ext.StoreMgr.get('emailgrid_' + this.folder)) {
 			Ext.StoreMgr.add('emailgrid_' + this.folder, new Ext.data.JsonStore({
 				url: '/email/read',
@@ -16,14 +18,14 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 		}
 	
 		Ext.apply(this, {
-			loadingText: _('Please wait ...'),
+			loadMask: false,
 			columns: Stachl.DefMgr.get('emailgrid').getGridColumns(),
-			sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+			sm: new Ext.grid.RowSelectionModel(),
 			store: Ext.StoreMgr.get('emailgrid_' + this.folder),
 			viewConfig: {
 				rowHeight: 21,
 				forceFit: true,
-				cacheSize: 20,
+				cacheSize: 10,
 				getRowClass: function(r, i) {
 					var cls = 'emailrow';
 					if (r.get('seen') == true) {
@@ -68,6 +70,10 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 			this.mainpanel.getSouth().clearStatus();
 			var status = String.format(_('{0} of {1} messages'), this.getStore().getCount(), this.getStore().getTotalCount());
 			Ext.getCmp(this.tbStatusId).update(status);
+		}
+		
+		if (App.getInstance().isLoadingVisible()) {
+			App.getInstance().hideLoading();
 		}
 	},
 	mouseEvent: function(e) {

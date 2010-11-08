@@ -1,5 +1,5 @@
 Ext.ns('ExtMail');
-ExtMail.Instance = function() {
+App = function() {
 	var _instance = null;
 	return {
 		getInstance: function(config) {

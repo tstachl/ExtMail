@@ -56,16 +56,20 @@ class EmailController extends Zend_Controller_Action
                 switch (strtok($part->contentType, ';')) {
                     case 'text/plain':
                     case 'text/html':
-                        $txt = Stachl_Utilities::utf8Encode((string)$part);
+                        $txt = Stachl_Utilities::utf8Encode($part->getContent());
                         if (Stachl_Utilities::checkQuotedPrintables($txt)) {
                             $txt = quoted_printable_decode($txt);
                         }
-                        $washer = @new Stachl_Washtml(array(
-                            'allow_remote' => false
+                        $washer = @new Stachl_WashtmlV2(array(
+                            'show_washed'	        => true,
+                            'allow_remote'          => false,
+                            'blocked_src'	        => '/images/blocked.gif',
+                            'charset'		        => 'UTF-8',
+                            //'allowedHtmlTags'       => array('html', 'head', 'title', 'body')
                         ));
-                        $txt = @$washer->wash($txt);
+                        $txt = $washer->wash($txt);
                         $txt = Stachl_Mail_Enrich::toHtml($txt);
-                        $result[strtok($part->contentType, ';')] = $txt;
+                        $result[strtok($part->contentType, ';')] = htmlentities($txt);
                         break;
                     default:
                         continue;
@@ -77,9 +81,14 @@ class EmailController extends Zend_Controller_Action
             if (Stachl_Utilities::checkQuotedPrintables($txt)) {
                 $txt = quoted_printable_decode($txt);
             }
-            $result[strtok($message->contentType, ';')] = htmlentities($txt);
+            $result[strtok($message->contentType, ';')] = $txt;
         }
-        
+        $str = explode(' ', $result['text/html']);
+        for ($i = 0; $i < count($str); $i++) {
+            var_dump(Zend_Json::encode($str[$i]));
+        }
+        echo($result['text/html']);die();
+        var_dump(Zend_Json::encode($result['text/html']));die();
         return $this->_helper->output($result);
     }
     

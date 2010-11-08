@@ -1,8 +1,8 @@
-Ext.ns('ExtMail', 'ExtMail.library');
-ExtMail.library.FolderNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
+Ext.ns('ExtMail', 'ExtMail.Library');
+ExtMail.Library.FolderNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 	oldText: null,
 	render: function() {
-		ExtMail.library.FolderNodeUI.superclass.render.call(this);
+		ExtMail.Library.FolderNodeUI.superclass.render.call(this);
 		this.newEmailsLayout();
 	},
 	newEmailsLayout: function() {

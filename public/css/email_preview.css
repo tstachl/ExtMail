@@ -1,0 +1,304 @@
+.email-body div, .email-body map, .email-body dt, .email-body isindex {
+  display: block;
+}
+
+.email-body p, .email-body dl, .email-body multicol {
+  display: block;
+  margin: 1em 0;
+}
+
+.email-body dd {
+  display: block;
+  -moz-margin-start: 40px;
+}
+
+.email-body blockquote {
+  display: block;
+  margin: 1em 40px;
+}
+
+.email-body address {
+  display: block;
+  font-style: italic;
+}
+
+.email-body center {
+  display: block;
+  text-align: center;
+}
+
+.email-body blockquote[type=cite] {
+  display: block;
+  margin: 1em 0px;
+  border-color: blue;
+  border-width: thin;
+}
+
+.email-body h1 {
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  margin: .67em 0;
+}
+
+.email-body h2 {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: .83em 0;
+}
+
+.email-body h3 {
+  display: block;
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 1em 0;
+}
+
+.email-body h4 {
+  display: block;
+  font-weight: bold;
+  margin: 1.33em 0;
+}
+
+.email-body h5 {
+  display: block;
+  font-size: 0.83em;
+  font-weight: bold;
+  margin: 1.67em 0;
+}
+
+.email-body h6 {
+  display: block;
+  font-size: 0.67em;
+  font-weight: bold;
+  margin: 2.33em 0;
+}
+
+.email-body listing {
+  display: block;
+  font-family: -moz-fixed;
+  font-size: medium;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+.email-body xmp, .email-body pre, .email-body plaintext {
+  display: block;
+  white-space: pre;
+  margin: 1em 0;
+}
+.email-body table {
+  display: table;
+  border-spacing: 2px;
+  border-collapse: separate;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+.email-body table[align="left"] {
+  float: left;
+}
+
+.email-body table[align="right"] {
+  float: right;
+  text-align: start;
+}
+
+.email-body table[rules]:not([rules="none"]) {
+  border-collapse: collapse;
+}
+.email-body caption {
+  display: table-caption;
+  text-align: center;
+}
+
+.email-body table[align="center"] > caption {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.email-body table[align="center"] > caption[align="left"] {
+  margin-right: 0;
+}
+
+.email-body table[align="center"] > caption[align="right"] {
+  margin-left: 0;
+}
+
+.email-body tr {
+  display: table-row;
+  vertical-align: inherit;
+}
+
+.email-body col {
+  display: table-column;
+}
+
+.email-body colgroup {
+  display: table-column-group;
+}
+
+.email-body tbody {
+  display: table-row-group;
+  vertical-align: middle;
+}
+
+thead {
+  display: table-header-group;
+  vertical-align: middle;
+}
+
+.email-body tfoot {
+  display: table-footer-group;
+  vertical-align: middle;
+}
+.email-body table > tr {
+  vertical-align: middle;
+}
+
+.email-body td { 
+  display: table-cell;
+  vertical-align: inherit;
+  text-align: inherit; 
+  padding: 1px;
+}
+
+.email-body th {
+  display: table-cell;
+  vertical-align: inherit;
+  font-weight: bold;
+  padding: 1px;
+}
+
+/* inlines */
+
+.email-body q:before {
+  content: open-quote;
+}
+
+.email-body q:after {
+  content: close-quote;
+}
+
+.email-body b, .email-body strong {
+  font-weight: bolder;
+}
+
+.email-body i, .email-body cite, .email-body em, .email-body var, .email-body dfn {
+  font-style: italic;
+}
+
+.email-body u, .email-body ins {
+  text-decoration: underline;
+}
+
+.email-body s, .email-body strike, .email-body del {
+  text-decoration: line-through;
+}
+
+.email-body blink {
+  text-decoration: blink;
+}
+
+.email-body big {
+  font-size: larger;
+}
+
+.email-body small {
+  font-size: smaller;
+}
+
+.email-body sub {
+  vertical-align: sub;
+  font-size: smaller;
+  line-height: normal;
+}
+
+.email-body sup {
+  vertical-align: super;
+  font-size: smaller;
+  line-height: normal;
+}
+
+.email-body nobr {
+  white-space: nowrap;
+}
+
+/* titles */
+.email-body abbr[title], .email-body acronym[title] {
+  border-bottom: dotted 1px;
+}
+
+/* lists */
+
+.email-body ul, .email-body menu, .email-body dir {
+  display: block;
+  list-style-type: disc;
+  margin: 1em 0;
+}
+
+.email-body ol {
+  display: block;
+  list-style-type: decimal;
+  margin: 1em 0;
+}
+
+.email-body li {
+  display: list-item;
+}
+
+/* nested lists have no top/bottom margins */
+.email-body ul ul,   .email-body ul ol,   .email-body ul dir,   .email-body ul menu,   .email-body ul dl,
+.email-body ol ul,   .email-body ol ol,   .email-body ol dir,   .email-body ol menu,   .email-body ol dl,
+.email-body dir ul,  .email-body dir ol,  .email-body dir dir,  .email-body dir menu,  .email-body dir dl,
+.email-body menu ul, .email-body menu ol, .email-body menu dir, .email-body menu menu, .email-body menu dl,
+.email-body dl ul,   .email-body dl ol,   .email-body dl dir,   .email-body dl menu,   .email-body dl dl {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 2 deep unordered lists use a circle */
+.email-body ol ul,   .email-body ul ul,   .email-body menu ul,   .email-body dir ul,
+.email-body ol menu, .email-body ul menu, .email-body menu menu, .email-body dir menu,
+.email-body ol dir,  .email-body ul dir,  .email-body menu dir,  .email-body dir dir {
+  list-style-type: circle;
+}
+
+/* 3 deep (or more) unordered lists use a square */
+.email-body ol ol ul,     .email-body ol ul ul,     .email-body ol menu ul,     .email-body ol dir ul,
+.email-body ol ol menu,   .email-body ol ul menu,   .email-body ol menu menu,   .email-body ol dir menu,
+.email-body ol ol dir,    .email-body ol ul dir,    .email-body ol menu dir,    .email-body ol dir dir,
+.email-body ul ol ul,     .email-body ul ul ul,     .email-body ul menu ul,     .email-body ul dir ul,
+.email-body ul ol menu,   .email-body ul ul menu,   .email-body ul menu menu,   .email-body ul dir menu,
+.email-body ul ol dir,    .email-body ul ul dir,    .email-body ul menu dir,    .email-body ul dir dir,
+.email-body menu ol ul,   .email-body menu ul ul,   .email-body menu menu ul,   .email-body menu dir ul,
+.email-body menu ol menu, .email-body menu ul menu, .email-body menu menu menu, .email-body menu dir menu,
+.email-body menu ol dir,  .email-body menu ul dir,  .email-body menu menu dir,  .email-body menu dir dir,
+.email-body dir ol ul,    .email-body dir ul ul,    .email-body dir menu ul,    .email-body dir dir ul,
+.email-body dir ol menu,  .email-body dir ul menu,  .email-body dir menu menu,  .email-body dir dir menu,
+.email-body dir ol dir,   .email-body dir ul dir,   .email-body dir menu dir,   .email-body dir dir dir {
+  list-style-type: square;
+}
+
+.email-body hr {
+  display: block;
+  height: 2px;
+  border: 1px inset;
+  margin: 0.5em auto 0.5em auto;
+  color: gray;
+}
+
+.email-body hr[size="1"] {
+  border-style: solid none none none;
+}
+
+.email-body img[usemap], .email-body object[usemap] {
+  color: blue;
+}
+
+.email-body spacer {
+  position: static ! important;
+  float: none ! important;
+}
