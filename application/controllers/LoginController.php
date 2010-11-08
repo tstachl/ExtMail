@@ -8,10 +8,10 @@ class LoginController extends Zend_Controller_Action
 		parent::preDispatch();
 		$this->view->headScript()->appendScript('
 			_ = function(key) {
-				return ExtMail.Instance.getInstance().getLocalizer().getMsg(key);
+				return App.getInstance().getLocalizer().getMsg(key);
 			};
 			Ext.onReady(function() {
-				ExtMail.Instance.getInstance({
+				App.getInstance({
 					environment: "' . APPLICATION_ENV . '",
 					quicktip: {
 						init: true
@@ -30,7 +30,7 @@ class LoginController extends Zend_Controller_Action
         			},
 					controller: new ExtMail.Controllers.LoginController()
 				});
-				ExtMail.Instance.getInstance().run();
+				App.getInstance().run();
 			});
 		');
 	}
