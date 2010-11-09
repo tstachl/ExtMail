@@ -159,7 +159,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		}
 	},
 	showSource: function(w) {
-		w.setTitle(String.format(_('Source of: {0}'), this.selected.get('subject')));
+		w.setTitle(String.format(_('Source of: {0}'), this.getGrid().getSelectionModel().getSelected().get('subject')));
 		w.show();
 		Ext.Ajax.request({
 			url: '/email/source',
