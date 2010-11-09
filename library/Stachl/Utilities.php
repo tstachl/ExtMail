@@ -36,20 +36,25 @@ class Stachl_Utilities
 		return $salt . hash('sha512', $config->crypt->staticsalt . $clear . $salt);
 	}
 	
-	public static function checkQuotedPrintables($string)
+	public static function utf8Encode($string, $encoding = false)
 	{
-	    if (preg_match_all('/' . implode('|', Zend_Mime::$qpReplaceValues) . '|=3D/i', $string, $matches)) {
-	        return true;
+	    if (!$encoding) {
+	        $encoding = mb_detect_encoding($string);
 	    }
-	    return false;
+	    if ($encoding && (strtoupper($encoding) != 'UTF-8')) {
+	        $string = iconv(strtoupper($encoding), 'UTF-8//TRANSLIT', $string);
+	    }
+	    return $string;
 	}
 	
-	public static function utf8Encode($string)
+	public static function getCharsetFromContentType($string)
 	{
-	    if (($encoding = mb_detect_encoding($string)) != 'UTF-8') {
-	        return utf8_encode($string);
+	    $pattern = '/(?<=charset=)[^;]*/';
+	    preg_match($pattern, $string, $matches);
+	    if (!empty($matches)) {
+	        return str_replace('"', '', $matches[0]);
 	    }
-	    return utf8_decode($string);
+	    return false;
 	}
 	
 	public static function makeAbsoluteUrl($path, $base_url)

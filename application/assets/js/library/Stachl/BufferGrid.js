@@ -161,12 +161,13 @@ Stachl.BufferGridView = Ext.extend(Ext.grid.GridView, {
 		}
 	},
 	
+	/* - Deactivated because of an error
     onRemove: function(ds, record, index, isUpdate) {
         Stachl.BufferGridView.superclass.onRemove.apply(this, arguments);
         if (isUpdate !== true) {
             this.update();
         }
-    },
+    },*/
     
     onLoad: function() {
     	// overwritten so it doesn't scroll to the top!

@@ -132,15 +132,7 @@ class ExtMail_Imap
 	 */
 	public function getMessage($id, $nocache = false)
 	{
-    	#$key = Stachl_Utilities::sanitizeId($this->_getCachePrefix() . '_' . $id);
-    	#$cache = Zend_Registry::get('cache');
-    	#if (!$cache->test($key) || $nocache) {
-	    	$data = $this->getMail()->getMessage($id);
-    	#	if (!$nocache) $cache->save($data, $key);
-    	#} else {
-    	#	$data = $cache->load($key);
-    	#}
-    	
+        $data = $this->getMail()->getMessage($id);
     	return $data;
 	}
 	
@@ -149,7 +141,7 @@ class ExtMail_Imap
 		$range = $this->_calculateRange($start, $limit);
 		$messages = array();
 		do {
-			$messages[$range[0]] = $this->getMessage($range[0]);
+			$messages[$this->getUId($range[0])] = $this->getMessage($range[0]);
     	    if ($range[0] < $range[1]) $range[0]++;
     	    elseif ($range[0] > $range[1]) $range[0]--;
 		} while ($range[0] != $range[1]);
@@ -167,8 +159,9 @@ class ExtMail_Imap
      */
 	public function setFlags($id, $flags)
 	{
+	    $message = $this->getMessage($id);
+	    $flags = array_merge($message->getFlags(), $flags);
 		$this->getMail()->setFlags($id, $flags);
-		$this->_recacheMessage($id);
 	}
 	
     /**
@@ -183,7 +176,62 @@ class ExtMail_Imap
 	public function removeFlags($id, $flags)
 	{
 		$this->getMail()->setFlags($id, $flags, null, '-');
-		$this->_recacheMessage($id);
+	}
+	
+    /**
+     * Remove a message from server. If you're doing that from a web enviroment
+     * you should be careful and use a uniqueid as parameter if possible to
+     * identify the message.
+     *
+     * @param   int $id number of message
+     * @return  null
+     * @throws  Zend_Mail_Storage_Exception
+     */
+	public function removeMessage($id)
+	{
+	    try {
+	        $current = $this->getMail()->getCurrentFolder();
+	        if ($current != 'INBOX.Trash') {
+    	        $this->setFolder('INBOX.Trash');
+    	        $this->setFolder($current);
+    	        $this->getMail()->copyMessage($id, 'INBOX.Trash');
+    	        $this->setFlags($id, array(Zend_Mail_Storage::FLAG_DELETED));
+	        } else {
+	            $this->getMail()->removeMessage($id);
+	        }
+	    } catch (Zend_Mail_Storage_Exception $e) {
+	        // Folder doesn't exist we remove the message completely
+	        $this->getMail()->removeMessage($id);
+	    }
+	}
+	
+    /**
+     * get a message number from a unique id
+     *
+     * I.e. if you have a webmailer that supports deleting messages you should use unique ids
+     * as parameter and use this method to translate it to message number right before calling removeMessage()
+     *
+     * @param string $id unique id
+     * @return int message number
+     * @throws Zend_Mail_Storage_Exception
+     */
+	public function getId($uniqueId)
+	{
+	    return $this->getMail()->getNumberByUniqueId($uniqueId);
+	}
+	
+    /**
+     * get unique id for one or all messages
+     *
+     * if storage does not support unique ids it's the same as the message number
+     *
+     * @param int|null $id message number
+     * @return array|string message number for given message or all messages as array
+     * @throws Zend_Mail_Storage_Exception
+     */
+	public function getUId($messageNum)
+	{
+	    return $this->getMail()->getUniqueId($messageNum);
 	}
 	
 	protected function _cleanInboxOnTopLevel($folders = array())

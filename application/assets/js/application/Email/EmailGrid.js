@@ -1,9 +1,7 @@
 Ext.ns('ExtMail', 'ExtMail.Email');
 ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 	cellSelectionModel: null,
-	initComponent: function() {
-		App.getInstance().updateLoading(_('Loading messages ...'));
-		
+	initComponent: function() {		
 		if (!Ext.StoreMgr.get('emailgrid_' + this.folder)) {
 			Ext.StoreMgr.add('emailgrid_' + this.folder, new Ext.data.JsonStore({
 				url: '/email/read',

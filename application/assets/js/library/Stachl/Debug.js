@@ -5,14 +5,18 @@ Stachl.Debug = function(config) {
 };
 
 Ext.extend(Stachl.Debug, Object, {
-	log: function(o) {
-		if (window.console !== 'undefined') {
-			console.log(o);
+	log: function() {
+		if (Ext.isDefined(window.console)) {
+			Ext.each(arguments, function(i) {
+				console.log(i);
+			});
 		}
 	},
 	error: function(o) {
-		if (window.console !== 'undefined') {
-			console.error(o);
+		if (Ext.isDefined(window.console)) {
+			Ext.each(arguments, function(i) {
+				console.error(i);
+			});
 		}
 	}
 });

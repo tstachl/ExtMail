@@ -3,11 +3,26 @@ App = function() {
 	var _instance = null;
 	return {
 		getInstance: function(config) {
-			if (_instance === null) {
-				_instance = new ExtMail.Application(config);
+			try {
+				if (_instance === null) {
+					_instance = new ExtMail.Application(config);
+				}
+				return _instance;
+			} catch (e) {
+				Debug.error(e);
+				if (typeof(e.getName) == 'function') {
+					Ext.Msg.show({
+						title: e.getName(),
+						msg: e.getMessage(),
+						buttons: Ext.Msg.OK,
+						fn: e.getFunction(),
+						scope: e.getScope(),
+						icon: Ext.Msg.ERROR
+					});
+				}
 			}
-			return _instance;
 		}
+
 	};
 }();
 ExtMail.Application = Ext.extend(Stachl.Application, {
@@ -24,21 +39,34 @@ ExtMail.Application = Ext.extend(Stachl.Application, {
 		this.ajaxErrorHandler();
 	},
 	ajaxErrorHandler: function() {
+		var me = this;
 		Ext.Ajax.on('requestexception', function(conn, response, options) {
 			try {
 				var r = Ext.util.JSON.decode(response.responseText);
 			} catch(e) {}
 			if (Ext.isDefined(r) && Ext.isDefined(r.success)) {
 				if (r.success == false) {
-					Ext.Msg.show({
-						title: r.error,
-						msg: r.exception,
-						buttons: Ext.Msg.OK,
-						icon: Ext.Msg.ERROR
-					});
+					me.showError(r.error, r.exception, Ext.util.Format.nl2br(r.stack));
 				}
 			}			
 		}, this);
+	},
+	showError: function(title, msg, stack) {
+		message  = '<h1>' + _('An error occured') + '</h1>';
+		message += '<h2>' + _('Exception information') + '</h2>';
+		message += '<strong>' + _('Message') + ':</strong>&nbsp;' + msg;
+		if (Ext.isDefined(stack)) {
+			message += '<br /><strong>Stack trace:</strong><br />';
+			message += stack;
+		}
+		Ext.Msg.show({
+			title: title,
+			msg: message,
+			maxWidth: 950,
+			minWidth: 750,
+			buttons: Ext.Msg.OK,
+			icon: Ext.Msg.ERROR
+		});
 	},
 	_run: function() {
 		ExtMail.Application.superclass._run.call(this);

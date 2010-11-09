@@ -60,7 +60,10 @@ Stachl.Application = Ext.extend(Ext.Viewport, {
 		return false;
 	},
 	updateLoading: function(s) {
-		if (this.loadMask && this.loadMask.el.child('.ext-el-mask-msg').dom.firstChild) {
+		if (this.loadMask) {
+			if (null == this.loadMask.el.child('.ext-el-mask-msg')) {
+				this.showLoading();
+			}
 			this.loadMask.msg = s;
 			Ext.get(this.loadMask.el.child('.ext-el-mask-msg').dom.firstChild).update(s);
 		}

@@ -31,14 +31,20 @@ class ErrorController extends Zend_Controller_Action
         $exception = '';
         // conditionally display exceptions
         if ($this->getInvokeArg('displayExceptions') == true) {
+            $this->view->exception = $errors->exception;
             $exception = $errors->exception->getMessage();
         }
         
-		return $this->_helper->output(array(
-			'success'   => false,
-			'error'     => $errorMessage,
-			'exception' => $errors->exception->getMessage()
-    	));
+        $this->view->request   = $errors->request;
+        
+        if ($this->getRequest()->isXmlHttpRequest()) {
+    		return $this->_helper->output(array(
+    			'success'   => false,
+    			'error'     => $errorMessage,
+    			'exception' => $exception,
+    		    'stack'		=> $errors->exception->getTraceAsString()
+        	));
+        }
     }
 
     public function getLog()

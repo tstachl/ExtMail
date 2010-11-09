@@ -28,6 +28,7 @@ class Stachl_Controller_Action_Helper_Output extends Zend_Controller_Action_Help
     
     const OUTPUT_JSON = 'json';
     const OUTPUT_XML  = 'xml';
+    const OUTPUT_HTML = 'html';
     
     protected $_output;
     protected $_type;
@@ -50,6 +51,10 @@ class Stachl_Controller_Action_Helper_Output extends Zend_Controller_Action_Help
                     $this->getResponse()->clearAllHeaders()
                                         //->setHeader('Content-Type', 'application/json; charset=utf-8')
                                         ->setBody(Zend_Json::encode($this->_output));
+                    break;
+                case self::OUTPUT_HTML:
+                    $this->getResponse()->clearAllHeaders()
+                                        ->setBody($this->_output);
                     break;
             }
         }

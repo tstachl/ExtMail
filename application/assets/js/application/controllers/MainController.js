@@ -2,32 +2,61 @@ Ext.ns('ExtMail.Controllers');
 ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 	title: 'Email - ExtMail - Stachl.me',
 	copyright: '© 2010 by <a href="http://www.stachl.me/" target="_blank" title="Stachl.me">Stachl.me</a>',
+	statusId: null,
 	initComponent: function() {
 		this.addDefs();
 		this.addStores();
+		this.statusId = Ext.id();
 		
 		Ext.apply(this, {
 			layout: 'border',
 			border: false,
 			region: 'center',
 			style: '',
-			items: [this.getMainContainer()]
+			items: [
+			    this.getMainContainer(), {
+			    xtype: 'extmail_status',
+			    region: 'south',
+			    id: this.statusId
+			}]
 		});
 		
 		ExtMail.Controllers.MainController.superclass.initComponent.call(this);
 	},
 	setMainContainer: function() {
-		this.mainContainer = new Ext.Container({
-	    	border: false,
+		this.mainContainer = new Ext.TabPanel({
 	    	region: 'center',
-	    	layout: 'fit'
+			tbar: new ExtMail.Toolbar({
+				listeners: {
+					movepreview: this.movePreview,
+					scope: this
+				}
+			}),
+	    	activeTab: 0
 		});
 		return this;
 	},	
 	show: function() {
-		this.views.add('mainpanel', new ExtMail.MainPanel());
-		this.setActiveItem('mainpanel').doLayout();
+		this.views.add('mainpanel', new ExtMail.MainPanel({
+			title: _('Email'),
+			iconCls: 'ico_email',
+			controller: this
+		}));
+		
+		this.views.each(function(item, index, length) {
+			this.getMainContainer().add(item);
+		}, this);
+		this.setActiveItem('mainpanel');
 		ExtMail.Controllers.MainController.superclass.show.call(this);
+	},
+	setActiveItem: function(i) {
+		return this.getMainContainer().setActiveTab(this.views.getView(i));
+	},
+	getStatus: function() {
+		return Ext.getCmp(this.statusId);
+	},
+	movePreview: function(tb, button) {
+		this.findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
 	},
 	addDefs: function() {
 		this.defs.add('emailgrid', new Stachl.StoreDef({

@@ -1,0 +1,30 @@
+.ico_logout {
+	background:url(../images/icons/small/door_open.png) no-repeat left center !important;
+}
+.ico_email {
+	background:url(../images/icons/small/email.png) no-repeat left center !important;
+}
+.ico_folder {
+	background:url(../images/icons/small/folder.png) no-repeat left center !important;
+}
+.ico_source {
+	background:url(../images/icons/small/script_code.png) no-repeat left center !important;
+}
+.ico_reply {
+	background:url(../images/icons/small/email_go.png) no-repeat left center !important;
+}
+.ico_forward {
+	background:url(../images/icons/small/resultset_next.png) no-repeat left center !important;
+}
+.ico_archive {
+	background:url(../images/icons/small/report.png) no-repeat left center !important;
+}
+.ico_junk {
+	background:url(../images/icons/small/error.png) no-repeat left center !important;
+}
+.ico_delete {
+	background:url(../images/icons/small/delete.png) no-repeat left center !important;
+}
+.answered .x-grid3-col-0 {
+	background:url(../images/icons/small/email_go.png) no-repeat 5px 50% !important;
+}

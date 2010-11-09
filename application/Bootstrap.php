@@ -32,7 +32,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 		$this->bootstrap('view');
 		$view = $this->getResource('view');
 		
-		$view->doctype('XHTML1_STRICT');
+		#$view->doctype('XHTML1_TRANSITIONAL');
 		
 		$view->headMeta()->appendHttpEquiv('Content-Type', 'text/html; charset=utf-8')
 						 ->appendName('author', 'Thomas Stachl')
@@ -92,11 +92,13 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     						   ->appendFile('/js/application/MainPanel/Navigation.js', 'text/javascript')
     						   ->appendFile('/js/application/MainPanel/CardContainer.js', 'text/javascript')
     						   ->appendFile('/js/application/MainPanel/Status.js', 'text/javascript')
+    						   ->appendFile('/js/application/MainPanel/Toolbar.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/MainPanel.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Navigation.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailContainer.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailGrid.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Preview.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/SourceWindow.js', 'text/javascript')
     						   ;
         }
 

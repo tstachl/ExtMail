@@ -185,10 +185,22 @@ class Stachl_WashtmlV2
     public function __construct($config = array())
     {
         // set all necessery options
-        $this->setAllowedHtmlTags((array)$config['allowedHtmlTags'])
-             ->setAllowedHtmlAttributes((array)$config['allowedHtmlAttributes'])
-             ->setForbiddenHtmlTags((array)$config['forbiddenHtmlTags'])
-             ->setNonEmptyTags((array)$config['nonEmptyTags'])
+        if (empty($config['allowedHtmlTags'])) {
+            $config['allowedHtmlTags'] = array();
+        }
+        if (empty($config['allowedHtmlAttributes'])) {
+            $config['allowedHtmlAttributes'] = array();
+        }
+        if (empty($config['forbiddenHtmlTags'])) {
+            $config['forbiddenHtmlTags'] = array();
+        }
+        if (empty($config['nonEmptyTags'])) {
+            $config['nonEmptyTags'] = array();
+        }
+        $this->setAllowedHtmlTags($config['allowedHtmlTags'])
+             ->setAllowedHtmlAttributes($config['allowedHtmlAttributes'])
+             ->setForbiddenHtmlTags($config['forbiddenHtmlTags'])
+             ->setNonEmptyTags($config['nonEmptyTags'])
              ->setConfig($config);
     }
     
@@ -401,8 +413,8 @@ class Stachl_WashtmlV2
                          ')\s*/i', $str, $match)) {
                         
                     if (isset($match[2]) && $match[2]) {
-                        if (($src = $this->_config['cid_map'][$match[2]])
-                            || ($src = $this->_config['cid_map'][$this->_config['base_url'] . $match[2]])) {
+                        if ((isset($this->_config['cid_map'][$match[2]]) && ($src = $this->_config['cid_map'][$match[2]])) || 
+                            (isset($this->_config['cid_map'][$this->_config['base_url'] . $match[2]]) && ($src = $this->_config['cid_map'][$this->_config['base_url'] . $match[2]]))) {
                             $value .= ' url(' . htmlspecialchars($src, ENT_QUOTES) . ')';
                         } else if (preg_match('/^(http|https|ftp):.*$/i', $match[2], $url)) {
                             if ($this->_config['allow_remote']) {
@@ -436,8 +448,8 @@ class Stachl_WashtmlV2
      */
     protected function washAttributes($node)
     {
-        $temp   = '';
-        $washed = '';
+        $temp        = '';
+        $washed      = '';
         
         foreach ($node->attributes as $key => $plop) {
             $key = strtolower($key);
@@ -469,7 +481,7 @@ class Stachl_WashtmlV2
             }
         }
         
-        return $temp . ($washed && $this->_config['show_washed']?' x-washed="'.$washed.'"':'');
+        return $temp . ($washed && $this->_config['show_washed'] ? ' x-washed="' . $washed . '"' : '');
     }
     
     protected function xssEntityDecodeCallback($matches)

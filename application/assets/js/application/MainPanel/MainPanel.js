@@ -6,5 +6,7 @@ ExtMail.MainPanel = Ext.extend(Stachl.Module, {
 		width: 250
 	},
 	center: 'extmail_cardcontainer',
-	south: 'extmail_status'
+	getSouth: function() {
+		return this.controller.getStatus();
+	}
 });
