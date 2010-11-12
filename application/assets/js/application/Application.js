@@ -51,19 +51,19 @@ ExtMail.Application = Ext.extend(Stachl.Application, {
 			}			
 		}, this);
 	},
-	showError: function(title, msg, stack) {
+	showError: function(title, msg) {
 		message  = '<h1>' + _('An error occured') + '</h1>';
 		message += '<h2>' + _('Exception information') + '</h2>';
 		message += '<strong>' + _('Message') + ':</strong>&nbsp;' + msg;
-		if (Ext.isDefined(stack)) {
+		if (Ext.isDefined(arguments[2])) {
 			message += '<br /><strong>Stack trace:</strong><br />';
-			message += stack;
+			message += arguments[2];
 		}
+		this.hideLoading();
 		Ext.Msg.show({
 			title: title,
 			msg: message,
 			maxWidth: 950,
-			minWidth: 750,
 			buttons: Ext.Msg.OK,
 			icon: Ext.Msg.ERROR
 		});

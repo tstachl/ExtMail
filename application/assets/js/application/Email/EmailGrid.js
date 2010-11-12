@@ -16,7 +16,7 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 		}
 	
 		Ext.apply(this, {
-			loadMask: false,
+			loadMask: true,
 			columns: Stachl.DefMgr.get('emailgrid').getGridColumns(),
 			sm: new Ext.grid.RowSelectionModel(),
 			store: Ext.StoreMgr.get('emailgrid_' + this.folder),

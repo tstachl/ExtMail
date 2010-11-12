@@ -2,10 +2,16 @@
 
 class LoginController extends Zend_Controller_Action
 {
-
+    
 	public function preDispatch()
 	{
 		parent::preDispatch();
+
+		$error = 0;
+		if ($this->getRequest()->getParam('error')) {
+		    $error = $this->getRequest()->getParam('error');
+		}
+		
 		$this->view->headScript()->appendScript('
 			_ = function(key) {
 				return App.getInstance().getLocalizer().getMsg(key);
@@ -28,7 +34,9 @@ class LoginController extends Zend_Controller_Action
         			locale: {
         				language: "en_US"
         			},
-					controller: new ExtMail.Controllers.LoginController()
+					controller: new ExtMail.Controllers.LoginController({
+						error: ' . $error . '
+					})
 				});
 				App.getInstance().run();
 			});
@@ -54,12 +62,11 @@ class LoginController extends Zend_Controller_Action
     public function processAction()
     {
         $request = $this->getRequest();
-        
+                
         if ($request->isPost()) {
             $adapter = $this->getAuthAdapter($request->getPost());
             $auth = Zend_Auth::getInstance();
             $result = $auth->authenticate($adapter);
-            
             if ($result->isValid()) {
                 $storage = $auth->getStorage();
                 $storage->write($adapter->getResultRowObject(array(
@@ -73,7 +80,9 @@ class LoginController extends Zend_Controller_Action
                 return $this->_helper->redirector('index', 'index');
             }
             
-            return $this->_helper->redirector('index');
+            return $this->_helper->redirector('index', 'login', 'default', array(
+                'error' => 1
+            ));
         }
         
         return $this->_helper->redirector('index');
@@ -89,7 +98,7 @@ class LoginController extends Zend_Controller_Action
 		$authAdapter = new Stachl_Auth_Adapter_Imap(
 			(isset($params['host']) ? $params['host'] : $this->_helper->config('application')->authentication->host),
 			(isset($params['port']) ? $params['port'] : $this->_helper->config('application')->authentication->port),
-			(isset($params['ssl']) ? $params['ssl'] : $this->_helper->config('application')->authentication->ssl)
+			((isset($params['ssl']) && $params['ssl'] != 'none') ? $params['ssl'] : $this->_helper->config('application')->authentication->ssl)
 		);
 		
 		return $authAdapter->setIdentity($params['username'])

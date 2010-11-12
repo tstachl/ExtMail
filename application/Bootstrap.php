@@ -77,6 +77,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/Stachl/Grid.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/BufferGrid.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/CardContainer.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/TabPanel.js', 'text/javascript')
 						   
 						   /* ExtMail Library */
 						   ->appendFile('/js/library/ExtMail/FolderNodeUI.js', 'text/javascript')
@@ -95,6 +96,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     						   ->appendFile('/js/application/MainPanel/Toolbar.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/MainPanel.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Navigation.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/NavigationMenu.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailContainer.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/EmailGrid.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Preview.js', 'text/javascript')

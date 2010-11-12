@@ -24,10 +24,6 @@ Ext.extend(Stachl.Module, Ext.Panel, {
 		};
 		Ext.apply(this, config);
 		
-		this.addListener('beforerender', this.init);
-		
-	},
-	init: function() {
 		if ((Ext.isString(this.north) && !Ext.isEmpty(this.north))) {
 			this.northId = Ext.id();
 			this.add(Ext.apply(this.northConfig, {
@@ -64,6 +60,7 @@ Ext.extend(Stachl.Module, Ext.Panel, {
 				mainpanel: this
 			}));
 		}
+		
 	},
 	getNorth: function() {
 		if (Ext.isDefined(this.northId)) {

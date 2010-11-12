@@ -4,8 +4,20 @@
 .ico_email {
 	background:url(../images/icons/small/email.png) no-repeat left center !important;
 }
+.ico_email_open {
+	background:url(../images/icons/small/email_open.png) no-repeat left center !important;
+}
 .ico_folder {
 	background:url(../images/icons/small/folder.png) no-repeat left center !important;
+}
+.ico_folder_rename {
+	background:url(../images/icons/small/folder_edit.png) no-repeat left center !important;
+}
+.ico_folder_create {
+	background:url(../images/icons/small/folder_add.png) no-repeat left center !important;
+}
+.ico_folder_delete {
+	background:url(../images/icons/small/folder_delete.png) no-repeat left center !important;
 }
 .ico_source {
 	background:url(../images/icons/small/script_code.png) no-repeat left center !important;

@@ -20,15 +20,56 @@
 
 class ExtMail_Imap
 {
-	
+	/**
+	 * Holds the IMAP instance
+	 * 
+	 * @var ExtMail_Imap
+	 */
 	protected static $_instance = null;
 	
+	/**
+	 * Holds the Zend_Auth indentity
+	 * 
+	 * @var Zend_Auth_Result
+	 */
 	protected $_auth;
+	
+	/**
+	 * Current IMAP folder
+	 * 
+	 * @var string
+	 */
 	protected $_folder;
+	
+	/**
+	 * Holds the current IMAP storage connection
+	 * 
+	 * @var Stachl_Mail_Storage_Imap
+	 */
 	protected $_mail;
+	
+	/**
+	 * Holds the cache instance
+	 * 
+	 * @var Zend_Cache
+	 */
 	protected $_cache;
+	
+	/**
+	 * Sort direction
+	 * 
+	 * @var string
+	 */
 	protected $_sort;
 	
+	/**
+	 * The constructor - opens a connection to the imap server and sets the current folder
+	 * TODO: Add caching functionality
+	 * TODO: Sorting functionality would be nice
+	 * 
+	 * @param  string $folder
+	 * @return void
+	 */
 	public function __construct($folder)
 	{
         $this->_auth = Zend_Auth::getInstance()->getIdentity();
@@ -63,13 +104,19 @@ class ExtMail_Imap
 	/**
 	 * getMail() - getter for $_mail
 	 * 
-	 * @return Zend_Mail_Storage_Imap
+	 * @return Stachl_Mail_Storage_Imap
 	 */
 	public function getMail()
 	{
 		return $this->_mail;
 	}
 	
+	/**
+	 * Selects a new folder if it isn't the current folder
+	 * 
+	 * @param  string $folder
+	 * @return void
+	 */
 	public function setFolder($folder)
 	{
 		if ($this->getMail()->getCurrentFolder() != $folder) {
@@ -78,6 +125,12 @@ class ExtMail_Imap
 		$this->_folder = $folder;
 	}
 	
+	/**
+	 * Requests a folder list and prepares the folders for ExtJS
+	 * 
+	 * @param Zend_Mail_Storage_Folder $folders
+	 * @param array                    $options   Additional options for folders
+	 */
 	public function getRecursiveFolderList($folders, $options = array())
 	{
 		// get the folders default options
@@ -112,15 +165,70 @@ class ExtMail_Imap
         return $list;
 	}
 	
+	/**
+	 * Returns a cleaned folder list with inbox set on first level
+	 * 
+	 * @return array folderlist
+	 */
 	public function getCleanedFolderList()
 	{
 		return $this->_cleanInboxOnTopLevel($this->getRecursiveFolderList($this->getMail()->getFolders()));
 	}
 	
+	/**
+	 * Returns the number of new messages in the given folder
+	 * 
+	 * @param  string $folder
+	 * @return int
+	 */
 	public function getFolderNewMessages($folder)
 	{
 		$this->setFolder($folder);
     	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
+	}
+	
+	/**
+	 * Creates a new folder within parent
+	 * 
+	 * @param  $name       name of the new folder
+	 * @param  $parent     name of the parent folder
+	 * @return bool|array  folder configuration on success, false on failure
+	 */
+	public function createFolder($name, $parent)
+	{
+	    try {
+	        $this->getMail()->createFolder($name, $parent);
+    	    $folderName = $parent . $this->getMail()->getFolderSeparator() . $name;
+    	    $options = $this->_getDefaultFolderListOptions();
+    	    $folder = array_merge($options['default'], array(
+    	        'text' => $name,
+    	        'newCount' => 0,
+    	        'leaf' => true,
+    	        'classConfig' => array_merge($options['default']['classConfig'], array(
+    	            'folder' => $folderName,
+    	            'title' => $name
+    	        ))
+    	    ));
+    	    return $folder;
+	    } catch (Zend_Mail_Storage_Exception $e) {
+	        return false;
+	    }
+	}
+	
+	/**
+	 * Deletes a folder
+	 * 
+	 * @param  string $name
+	 * @return bool
+	 */
+	public function deleteFolder($name)
+	{
+	    try {
+	        $this->getMail()->removeFolder($name);
+	        return true;
+	    } catch (Zend_Mail_Storage_Exception $e) {
+	        return false;
+	    }
 	}
 	
 	/**
@@ -132,16 +240,35 @@ class ExtMail_Imap
 	 */
 	public function getMessage($id, $nocache = false)
 	{
-        $data = $this->getMail()->getMessage($id);
-    	return $data;
+	    try {
+            $data = $this->getMail()->getMessage($id);
+        	return $data;
+	    } catch (Zend_Mail_Protocol_Exception $e) {
+	        if ($e->getMessage() == 'the single id was not found in response') {
+	            return false;
+	        }
+	    }
 	}
 	
+	/**
+	 * get the message list for the current folder
+	 * 
+	 * @param  int    $start  start index (first message)
+	 * @param  int    $limit  limit of maximal messages
+	 * @return array  messages
+	 */
 	public function getMessageList($start = 0, $limit = 40)
 	{
 		$range = $this->_calculateRange($start, $limit);
 		$messages = array();
 		do {
+		    // get message from the range
+		    $message = $this->getMessage($range[0]);
+		    // if we don't have a message leave
+		    if (!$message) break;
+		    // if we have a message add it to the list
 			$messages[$this->getUId($range[0])] = $this->getMessage($range[0]);
+			// check which direction and add or remove 1 from the range
     	    if ($range[0] < $range[1]) $range[0]++;
     	    elseif ($range[0] > $range[1]) $range[0]--;
 		} while ($range[0] != $range[1]);
@@ -234,6 +361,71 @@ class ExtMail_Imap
 	    return $this->getMail()->getUniqueId($messageNum);
 	}
 	
+	/**
+	 * Converts the message content in the right encoding
+	 * 
+	 * @param  Zend_Mail_Message|Zend_Mail_Part $message
+	 * @return string
+	 */
+	public function convertMessage($message)
+	{
+        $str = $message->getContent();
+        if ($message->headerExists('content-transfer-encoding')) {
+            switch ($message->contentTransferEncoding) {
+                case 'quoted-printable':
+                    $str = quoted_printable_decode($str);
+                    break;
+                case 'base64':
+                    $str = base64_decode($str);
+                    break;
+            }
+        }
+        $str = Stachl_Utilities::utf8Encode($str, Stachl_Utilities::getCharsetFromContentType(($message->headerExists('content-type') ? $message->contentType : '')));
+        return $str;
+	}
+	
+	/**
+	 * Converts html special chars and newlines to html breaks wraps a div container around
+	 * with Courier set as font.
+	 * 
+	 * @param  Zend_Mail_Message|Zend_Mail_Part $message
+	 * @return string
+	 */
+	public function convertMessageToPlain($message)
+	{
+        $str  = '<div style="font-family: Courier;">';
+        $str .= nl2br(htmlspecialchars($this->convertMessage($message)));
+        $str .= '</div>';
+        return $str;
+	}
+	
+	/**
+	 * Cleans up the html content of a message
+	 * 
+	 * @param  Zend_Mail_Message|Zend_Mail_Part $message
+	 * @return string
+	 */
+	public function convertMessageToHtml($message)
+	{
+	    $str = $this->convertMessage($message);
+        $washer = new Stachl_WashtmlV2(array(
+            'show_washed'	        => true,
+            'allow_remote'          => false,
+            'blocked_src'	        => '/images/blocked.gif',
+            'charset'		        => 'UTF-8',
+            //'allowedHtmlTags'       => array('html', 'head', 'title', 'body')
+        ));
+        $str = $washer->wash($str);
+        $str = Stachl_Mail_Enrich::toHtml($str);
+        return $str;
+	}
+	
+	/**
+	 * If INBOX has subfolders it returns the array with INBOX on the first level
+	 * 
+	 * @param  array $folders
+	 * @return array
+	 */
 	protected function _cleanInboxOnTopLevel($folders = array())
 	{
 		if (!empty($folders[0]['children'])) {
@@ -245,6 +437,12 @@ class ExtMail_Imap
     	return (isset($return) ? $return : $folders);
 	}
 	
+	/**
+	 * Returns an array with default settings for the ExtJS folder tree
+	 * 
+	 * @param  array $options
+	 * @return array
+	 */
 	protected function _getDefaultFolderListOptions($options = array())
 	{
 		$options['default'] = array(
@@ -258,6 +456,13 @@ class ExtMail_Imap
 		return $options;
 	}
 	
+	/**
+	 * Calculates the range of messages in combination with the sort settings
+	 * 
+	 * @param  int $start
+	 * @param  int $limit
+	 * @return array
+	 */
 	protected function _calculateRange($start, $limit)
 	{
         $count = $this->getMail()->countMessages();
@@ -279,11 +484,21 @@ class ExtMail_Imap
         return array($begin, $end);
 	}
 	
+	/**
+	 * Returns an unique cache key prefix
+	 * @return string
+	 */
 	protected function _getCachePrefix()
 	{
 		return $this->_auth->host . '_' . $this->_auth->username . '_' . $this->getMail()->getCurrentFolder();
 	}
 	
+	/**
+	 * Recaches a message after it has been changed (FLAGS, ...)
+	 * 
+	 * @param  int $id Message Number
+	 * @return void
+	 */
 	protected function _recacheMessage($id)
 	{
     	$key = Stachl_Utilities::sanitizeId($this->_getCachePrefix() . '_' . $id);

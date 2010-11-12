@@ -80,7 +80,7 @@ Ext.extend(Stachl.Login, Ext.Window, {
 	        border: false,
 	        bodyStyle: 'background:transparent;',
 	        cls: 'ux-auth-header',
-	        height: 60
+	        height: 70
 	    });
 
 	    // form panel

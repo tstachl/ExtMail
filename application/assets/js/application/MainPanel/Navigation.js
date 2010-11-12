@@ -5,6 +5,7 @@ ExtMail.Navigation = Ext.extend(Ext.Panel, {
 		ExtMail.Navigation.superclass.initComponent.apply(this, arguments);
 		
 		this.logoutId = Ext.id();
+		this.emailNavigationId = Ext.id();
 		
 		Ext.apply(this, {
 			layout: 'accordion',
@@ -15,6 +16,7 @@ ExtMail.Navigation = Ext.extend(Ext.Panel, {
 			},
 			items: [{
 				title: _('Email'),
+				id: this.emailNavigationId,
 				xtype: 'extmail_email_navigation',
 				iconCls: 'ico_email',
 				mainpanel: this.mainpanel
@@ -45,6 +47,9 @@ ExtMail.Navigation = Ext.extend(Ext.Panel, {
 			Ext.destroy(Ext.get(this.get(this.logoutId).header.dom.firstChild));
 			this.logoutPrepared = true;
 		}
+	},
+	getEmailNavigation: function() {
+		return Ext.getCmp(this.emailNavigationId);
 	}
 });
 Ext.reg('extmail_navigation', ExtMail.Navigation);

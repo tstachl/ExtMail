@@ -55,19 +55,10 @@ class EmailController extends Zend_Controller_Action
                 $contentType = ($part->headerExists('content-type') ? strtok(strtolower($part->contentType), ';') : 'text/plain');
                 switch ($contentType) {
                     case 'text/plain':
-                        $txt = $this->convertPlain($this->convertMessage($part));
+                        $txt = $mail->convertMessageToPlain($part);
                         break;
                     case 'text/html':
-                        $txt = $this->convertMessage($part);
-                        $washer = new Stachl_WashtmlV2(array(
-                            'show_washed'	        => true,
-                            'allow_remote'          => false,
-                            'blocked_src'	        => '/images/blocked.gif',
-                            'charset'		        => 'UTF-8',
-                            //'allowedHtmlTags'       => array('html', 'head', 'title', 'body')
-                        ));
-                        $txt = $washer->wash($txt);
-                        $txt = Stachl_Mail_Enrich::toHtml($txt);
+                        $txt = $mail->convertMessageToHtml($part);
                         break;
                     default:
                         continue;
@@ -78,19 +69,10 @@ class EmailController extends Zend_Controller_Action
             $contentType = ($message->headerExists('content-type') ? strtok(strtolower($message->contentType), ';') : 'text/plain');
             switch ($contentType) {
                 case 'text/plain':
-                    $txt = $this->convertPlain($this->convertMessage($message));
+                    $txt = $mail->convertMessageToPlain($message);
                     break;
                 case 'text/html':
-                    $txt = $this->convertMessage($message);
-                    $washer = new Stachl_WashtmlV2(array(
-                        'show_washed'	        => true,
-                        'allow_remote'          => false,
-                        'blocked_src'	        => '/images/blocked.gif',
-                        'charset'		        => 'UTF-8',
-                        //'allowedHtmlTags'       => array('html', 'head', 'title', 'body')
-                    ));
-                    $txt = $washer->wash($txt);
-                    $txt = Stachl_Mail_Enrich::toHtml($txt);
+                    $txt = $mail->convertMessageToHtml($message);
                     break;
             }
             
@@ -166,30 +148,65 @@ class EmailController extends Zend_Controller_Action
 		));
     }
     
+    public function folderrenameAction()
+    {
+        $name = $this->getRequest()->getParam('name');
+        $oldname = $this->getRequest()->getParam('oldname');
+        $folder = $this->getRequest()->getParam('folder');
+        $mail = ExtMail_Imap::getInstance()->getMail();
+        
+        $newFolder = str_replace($oldname, $name, $folder);
+                
+        try {
+            $mail->renameFolder($folder, $newFolder);
+            
+            return $this->_helper->output(array(
+                'success' => true,
+                'folder'  => $newFolder
+            ));  
+        } catch (Zend_Mail_Storage_Exception $e) {
+            return $this->_helper->output(array(
+                'success' => false
+            ));          
+        }
+    }
+    
+    public function foldercreateAction()
+    {
+        $name = $this->getRequest()->getParam('name');
+        $folder = $this->getRequest()->getParam('folder');
+        $mail = ExtMail_Imap::getInstance();
+        
+        $result = $mail->createFolder($name, $folder);
+        if ($result) {
+            return $this->_helper->output(array(
+                'success' => true,
+                'folder' => $result
+            ));
+        }
+        return $this->_helper->output(array(
+            'success' => false
+        ));
+    }
+    
+    public function folderdeleteAction()
+    {
+        $folder = $this->getRequest()->getParam('folder');
+        $mail = ExtMail_Imap::getInstance();
+        
+        if ($mail->deleteFolder($folder)) {
+            return $this->_helper->output(array(
+                'success' => true
+            ));
+        }
+        return $this->_helper->output(array(
+            'success' => false
+        ));
+    }
+    
     public function testAction()
     {
-    	$message = $this->getMail()->getMessage($this->getRequest()->getParam('message'));
-    	var_dump(Stachl_Mail_Clean::fixMalform((string)$message->getPart(2)));
+    	var_dump(ExtMail_Imap::getInstance()->getMail()->getFolderSeparator());
         die('testAction');
-    }
-    
-    protected function convertMessage($message)
-    {
-        $str = $message->getContent();
-        if ($message->headerExists('content-transfer-encoding') && 
-            ($message->contentTransferEncoding == 'quoted-printable')) {
-            $str = quoted_printable_decode($str);
-        }
-        $str = Stachl_Utilities::utf8Encode($str, Stachl_Utilities::getCharsetFromContentType(($message->headerExists('content-type') ? $message->contentType : '')));
-        return $str;
-    }
-    
-    protected function convertPlain($string)
-    {
-        $return  = '<div style="font-family: Courier;">';
-        $return .= nl2br(htmlspecialchars($string));
-        $return .= '</div>';
-        return $return;
-    }
-    
+    }    
 }

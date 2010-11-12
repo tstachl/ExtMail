@@ -29,7 +29,7 @@ div.newemails {
 	font-weight: bold;
 }
 
-.emailrow.deleted td div {
+.emailrow.deleted td div, div.deletefolder a span {
 	text-decoration: line-through;
 }
 

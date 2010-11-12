@@ -3,6 +3,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 	layout: 'border',
 	selected: null,
 	preview: null,
+	dispensable: [],
 	initComponent: function() {
 		this.gridId = Ext.id();
 		this.previewSouth = Ext.id();
@@ -13,7 +14,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			folder: this.folder,
 			listeners: {
 				source: this.showSource,
-				remove: this.removeMessage,
+				removemessage: this.removeMessage,
 				scope: this
 			}
 		});
@@ -29,6 +30,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				folder: this.folder,
 				listeners: {
 					rowclick: this.rowClick,
+					rowdblclick: this.rowDblClick,
 					scope: this
 				}
 			}, {
@@ -53,6 +55,12 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		ExtMail.Email.EmailContainer.superclass.initComponent.call(this);
 	},
 	rowClick: function(grid, rowIndex, e) {
+		if (!this.rowClickTask) {
+			this.rowClickTask = new Ext.util.DelayedTask(this.doRowClick, this, [grid, rowIndex, e]);
+		}
+		this.rowClickTask.delay(200);
+	},
+	doRowClick: function(grid, rowIndex, e) {
 		if (grid.getSelectionModel().getCount() === 1) {
 			var r    = grid.getSelectionModel().getSelected(),
 				me   = this,
@@ -80,7 +88,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			} else if (this.preview.isVisible()) {
 				if (!this.getGrid().getSelectionModel().getSelected().get('deleted')) {
 					this.getPreviewPanel().showLoading();
-					Ext.Ajax.request({
+					var transId = Ext.Ajax.request({
 						url: '/email/body',
 						params: {
 							folder: this.folder,
@@ -89,8 +97,8 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 						success: function(d) {
 							me.getPreviewPanel().getTopToolbar().show();
 							me.setRead(r);
-							me.overwriteTemplates(r.data, me.prepareBody(d.responseText));
-							me.resizePreviewPanel();
+							me.overwriteTemplates(me.getPreviewPanel(), r.data, me.prepareBody(d.responseText));
+							me.resizePreviewPanel(me.getPreviewPanel());
 							me.getPreviewPanel().scrollToTop();
 							me.getPreviewPanel().hideLoading();
 						}
@@ -98,6 +106,60 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				}
 			}
 		}
+	},
+	rowDblClick: function(grid, rowIndex, e) {
+		this.removeTask('rowClickTask');
+		
+		var me = this,
+			controller = me.mainpanel.controller,
+			r = me.getGrid().getSelectionModel().getSelected(),
+			npId = Ext.id(),
+			np;
+		
+		me.getPreviewPanel().hideLoading();
+		
+		controller.views.add(npId, new ExtMail.Email.Preview({
+			title: r.get('subject'),
+			iconCls: 'ico_email_open',
+			controller: controller,
+			closable: true,
+			hideMenu: true,
+			mainpanel: this.mainpanel,
+			folder: this.folder,
+			listeners: {
+				source: this.showSource,
+				removemessage: this.removeMessage,
+				scope: this
+			}
+		}));
+		
+		np = controller.views.get(npId);
+		controller.getMainContainer().add(np);
+		controller.setActiveItem(npId);
+		
+		np.showLoading();
+		np.on('removemessage', function(item) {
+			if (item.fireEvent('beforeclose', item) !== false) {
+				item.fireEvent('close', item);
+				this.remove(item);
+			}
+			return;
+		});
+		Ext.Ajax.request({
+			url: '/email/body',
+			params: {
+				folder: this.folder,
+				message: r.get('message')
+			},
+			success: function(d) {
+				np.getTopToolbar().show();
+				me.setRead(r);
+				me.overwriteTemplates(np, r.data, me.prepareBody(d.responseText));
+				me.resizePreviewPanel(np);
+				np.scrollToTop();
+				np.hideLoading();
+			}
+		});
 	},
 	getGrid: function() {
 		return Ext.getCmp(this.gridId);
@@ -114,6 +176,13 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			return this.preview;
 		}
 	},
+    removeTask: function(name) {
+        var task = this[name];
+        if (task && task.cancel) {
+            task.cancel();
+            this[name] = null;
+        }
+    },
 	movePreview: function(where) {
 		switch (where) {
 			case 'right':
@@ -133,19 +202,18 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		}
 		this.doLayout();
 	},
-	overwriteTemplates: function(headerData, bodyData) {
-		this.getPreviewPanel().getTemplate().overwrite(this.getPreviewPanel().getHeader().body, headerData);
-		this.getPreviewPanel().getBody().update('<div class="email-body">' + bodyData + '</div>');
+	overwriteTemplates: function(previewPanel, headerData, bodyData) {
+		previewPanel.getTemplate().overwrite(this.getPreviewPanel().getHeader().body, headerData);
+		previewPanel.getBody().update('<div class="email-body">' + bodyData + '</div>');
 	},
-	resizePreviewPanel: function() {
-		var bodySize = this.getPreviewPanel().getBody().getSize(),
-			headerSize = this.getPreviewPanel().getHeader().getSize(),
-			fullSize = this.getPreviewPanel().getSize(),
-			tbarSize = this.getPreviewPanel().getTopToolbar().getSize();
+	resizePreviewPanel: function(previewPanel) {
+		var bodySize = previewPanel.getBody().getSize(),
+			headerSize = previewPanel.getHeader().getSize(),
+			fullSize = previewPanel.getSize(),
+			tbarSize = previewPanel.getTopToolbar().getSize();
 		
-		this.getPreviewPanel().getBody().setPosition(0, headerSize.height);
-		this.getPreviewPanel().getBody().setHeight(fullSize.height - headerSize.height - tbarSize.height);
-		this.isResized = headerSize;
+		previewPanel.getBody().setPosition(0, headerSize.height);
+		previewPanel.getBody().setHeight(fullSize.height - headerSize.height - tbarSize.height);
 	},
 	prepareBody: function(body) {
 		body = Ext.util.Format.stripScripts(body);
@@ -172,7 +240,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			}
 		});
 	},
-	removeMessage: function() {
+	removeMessage: function(panel) {
 		if (this.getGrid().getSelectionModel().getCount() > 0) {
 			var me     = this,
 				msgIds = [];
@@ -191,6 +259,9 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 						me.getGrid().getStore().remove(me.getGrid().getSelectionModel().getSelections());
 						me.getPreviewPanel().restoreDefault();
 						me.getPreviewPanel().doLayout();
+						if (Ext.isDefined(panel.controller)) {
+							panel.controller.getMainContainer().closeTab(panel);
+						}
 					}
 				}
 			});

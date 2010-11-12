@@ -62,7 +62,7 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 			compiled: true
 		});
 		
-		this.addEvents('source', 'remove', 'junk', 'archive', 'forward', 'reply');
+		this.addEvents('source', 'removemessage', 'junk', 'archive', 'forward', 'reply');
 	},
 	getTemplate: function() {
 		return this.headerTpl;
@@ -81,7 +81,9 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 		this.mainpanel.getSouth().showBusy(_('Loading preview ...'));
 	},
 	hideLoading: function() {
-		this.loadMask.hide();
+		if (null !== this.loadMask) {
+			this.loadMask.hide();
+		}
 		this.mainpanel.getSouth().clearStatus();
 	},
 	scrollToTop: function() {
@@ -91,7 +93,7 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 		dom.scrollLeft = 0;
 	},
 	removeMessage: function() {
-		this.fireEvent('remove', this);
+		this.fireEvent('removemessage', this);
 	},
 	showSource: function() {
 		if (this.sourceWindow == null) {

@@ -41,4 +41,47 @@ class Stachl_Mail_Storage_Imap extends Zend_Mail_Storage_Imap
         }
 	}
 	
+	/**
+	 * Reads the response on a LIST command to determine the folder separator
+	 * 
+	 * @return  string  the folder separator
+	 */
+	public function getFolderSeparator()
+	{
+	    $tokens = $this->_protocol->requestAndResponse('LIST', array('""', '"%"'));
+	    return $tokens[0][2];
+	}
+	
+    /**
+     * create a new folder
+     *
+     * This method also creates parent folders if necessary. Some mail storages may restrict, which folder
+     * may be used as parent or which chars may be used in the folder name
+     *
+     * @param  string                          $name         global name of folder, local name if $parentFolder is set
+     * @param  string|Zend_Mail_Storage_Folder $parentFolder parent folder for new folder, else root folder is parent
+     * @return null
+     * @throws Zend_Mail_Storage_Exception
+     */
+    public function createFolder($name, $parentFolder = null)
+    {
+        // DONE: we assume / as the hierarchy delim - need to get that from the folder class!
+        // created a function which can read the folder separator from the server
+        if ($parentFolder instanceof Zend_Mail_Storage_Folder) {
+            $folder = $parentFolder->getGlobalName() . $this->getFolderSeparator() . $name;
+        } else if ($parentFolder != null) {
+            $folder = $parentFolder . $this->getFolderSeparator() . $name;
+        } else {
+            $folder = $name;
+        }
+
+        if (!$this->_protocol->create($folder)) {
+            /**
+             * @see Zend_Mail_Storage_Exception
+             */
+            require_once 'Zend/Mail/Storage/Exception.php';
+            throw new Zend_Mail_Storage_Exception('cannot create folder');
+        }
+    }
+	
 }

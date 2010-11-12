@@ -11,9 +11,12 @@ ExtMail.Controllers.LoginController = Ext.extend(Stachl.Controller, {
 			loginButton: _('Login'),
 			usernameLabel: _('Username'),
 			passwordLabel: _('Password'),
+			hostLabel: _('Host'),
+			portLabel: _('Port'),
 			remembermeLabel: _('Remember me'),
 			remembermeQtip: _('This is not recommended for shared computers!'),
-			forgotPasswordLabel: _('Forgot Password')
+			forgotPasswordLabel: _('Forgot Password'),
+			fail: (this.error == 0) ? false : true
 		});
 		this.loginWindow.show();
 		ExtMail.Controllers.LoginController.superclass.show.call(this);

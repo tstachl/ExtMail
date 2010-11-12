@@ -24,18 +24,32 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 		ExtMail.Controllers.MainController.superclass.initComponent.call(this);
 	},
 	setMainContainer: function() {
-		this.mainContainer = new Ext.TabPanel({
+		this.mainContainer = new Stachl.TabPanel({
 	    	region: 'center',
+	    	listeners: {
+				beforetabchange: this.beforeTabChange,
+				scope: this
+			},
 			tbar: new ExtMail.Toolbar({
 				listeners: {
 					movepreview: this.movePreview,
 					scope: this
 				}
 			}),
+			plugins: new Ext.ux.TabCloseMenu(),
 	    	activeTab: 0
 		});
 		return this;
-	},	
+	},
+	beforeTabChange: function(tp, t) {
+		if (Ext.isDefined(t) && t.hideMenu) {
+			tp.getTopToolbar().hide();
+			tp.doLayout();
+		} else {
+			tp.getTopToolbar().show();
+			tp.doLayout();
+		}
+	},
 	show: function() {
 		this.views.add('mainpanel', new ExtMail.MainPanel({
 			title: _('Email'),
@@ -50,13 +64,14 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 		ExtMail.Controllers.MainController.superclass.show.call(this);
 	},
 	setActiveItem: function(i) {
-		return this.getMainContainer().setActiveTab(this.views.getView(i));
+		var v = this.views.getView(i);		
+		return this.getMainContainer().setActiveTab(v);
 	},
 	getStatus: function() {
 		return Ext.getCmp(this.statusId);
 	},
 	movePreview: function(tb, button) {
-		this.findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
+		this.getMainContainer().getActiveTab().findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
 	},
 	addDefs: function() {
 		this.defs.add('emailgrid', new Stachl.StoreDef({

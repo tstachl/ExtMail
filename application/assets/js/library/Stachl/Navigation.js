@@ -71,7 +71,15 @@ Ext.extend(Stachl.Navigation.Tree, Ext.tree.TreePanel, {
 						if (this.loadMask) {
 							this.loadingMask.hide();
 						}
-						this.selectPath(this.getRootNode().firstChild.getPath());
+						
+						var node;
+						if (this.lookupChild) {
+							node = this.getRootNode().findChild(this.lookupChild.attribute, this.lookupChild.value, this.lookupChild.deep || false);
+						}
+						
+						var path = (node ? node.getPath() : false) || this.startPath || this.getRootNode().firstChild.getPath();
+						
+						this.selectPath(path);
 						this.clicked();
 					},
 					scope: this
