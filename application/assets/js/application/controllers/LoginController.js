@@ -1,7 +1,17 @@
 Ext.ns('ExtMail.Controllers');
 ExtMail.Controllers.LoginController = Ext.extend(Stachl.Controller, {
-	title: 'Login - ExtMail - Stachl.me',
-	copyright: '© 2010 by <a href="http://www.stachl.me/" target="_blank" title="Stachl.me">Stachl.me</a>',
+	title: 'Login - ExtMail - w3agency.net',
+	copyright: '© 2010 by <a href="http://www.w3agency.net/" target="_blank" title="w3agency.net">w3agency.net</a>',
+	setMainContainer: function() {
+		this.mainContainer = new Ext.Container({
+	    	style: 'padding:10px;background:transparent',
+	    	border: false,
+	    	region: 'center',
+	    	layout: 'fit',
+	    	html: '<h2>Demo Access</h2><dl style="font-size: 14px; margin-top: 10px;"><dt style="font-weight: bold;">Username:</dt><dd style="padding-left: 10px;">demo@w3agency.net</dd><dt style="font-weight: bold;">Password:</dt><dd style="padding-left: 10px;">demo</dd></dl>'
+		});
+		return this;
+	},
 	show: function() {
 		this.loginWindow = new ExtMail.Login.Window({
 			title: _('Login'),

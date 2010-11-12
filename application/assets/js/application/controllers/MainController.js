@@ -1,7 +1,7 @@
 Ext.ns('ExtMail.Controllers');
 ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
-	title: 'Email - ExtMail - Stachl.me',
-	copyright: '© 2010 by <a href="http://www.stachl.me/" target="_blank" title="Stachl.me">Stachl.me</a>',
+	title: 'Email - ExtMail - w3agency.net',
+	copyright: '© 2010 by <a href="http://www.w3agency.net/" target="_blank" title="w3agency.net">w3agency.net</a>',
 	statusId: null,
 	initComponent: function() {
 		this.addDefs();

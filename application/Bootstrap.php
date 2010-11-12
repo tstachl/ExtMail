@@ -39,7 +39,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						 ->appendName('copyright', '2010 by Thomas Stachl')
 						 ->appendName('description', 'ExtJS Webmail for demonstration.');
 						 
-		$view->headTitle('ExtMail - Stachl.me')->setSeparator(' - ')
+		$view->headTitle('ExtMail - w3agency.net')->setSeparator(' - ')
 								   ->setDefaultAttachOrder(Zend_View_Helper_Placeholder_Container_Abstract::PREPEND);
 		
 		$view->headLink()->appendStylesheet($view->baseUrl() . '/css/reset-min.css')

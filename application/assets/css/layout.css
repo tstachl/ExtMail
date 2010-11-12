@@ -3,12 +3,11 @@
 }
 
 .logo h1 {
-	background: transparent url(../images/extmail_logoicon.png) top left no-repeat;
 	display: block;
 	height: 30px;
 	line-height: 30px;
 	margin-top: 10px;
-	padding-left: 50px;
+	padding-left: 10px;
 }
 
 p.copyright {
