@@ -164,7 +164,7 @@ class Stachl_WashtmlV2
      */
     protected $_nonEmptyTags = array();
     
-    
+    protected $_cssClass = 'messagebody';
     
     
     /**
@@ -497,11 +497,44 @@ class Stachl_WashtmlV2
         return $out;
     }
     
+    protected function prepareInlineCss($content)
+    {
+        $content = preg_replace('!/\*(.+)\*/!Ums', '', $content);
+        preg_match_all('/({)(.*)?(})/Ums', $content, $matches);
+        $content = preg_replace('/({)(.*)?(})/Ums', '$1$3', $content);
+        $content = preg_replace(
+            array(
+                '/(^\s*<!--)|(-->\s*$)/',
+                '/(^\s*|,\s*|\}\s*)([a-z0-9\._#\*][a-z0-9\.\-_]*)/im',
+                '/' . preg_quote('.' . $this->_cssClass, '/') . '\s+body/i'
+            ),
+            array(
+                '',
+                "\\1.$this->_cssClass \\2",
+                '.' . $this->_cssClass
+            ),
+            $content
+        );
+        $contentArray = explode('{}', $content);
+        $content = '';
+        $i = 0;
+        foreach ($contentArray as $c) {
+            if (isset($matches[2][$i])) {
+                $content .= $c . '{' . $matches[2][$i++] . '}';
+            }
+        }
+        unset($matches, $contentArray, $c, $i);        
+        return $content;
+    }
+    
     protected function specialTags($tagname, $attrib, $content)
     {
         switch ($tagname) {
             case 'form':
                 $out = '<div>' . $content . '</div>';
+                break;
+            case 'body':
+                $out = '<div class="' . $this->_cssClass . '">' . $content . '</div>';
                 break;
             case 'style':
                 // decode all escaped entities and reduce to ascii strings
@@ -509,7 +542,7 @@ class Stachl_WashtmlV2
                 
                 // now check for evil strings like expression, behavior or url()
                 if (!preg_match('/expression|behavior|url\(|import/', $stripped)) {
-                    $out = '<style type="text/css">' . $content . '</style>';
+                    $out = '<style type="text/css">' . $this->prepareInlineCss($content) . '</style>';
                     break;
                 }
             default:
@@ -648,6 +681,7 @@ class Stachl_WashtmlV2
         }
         $this->registerCallback('form', array($this, 'specialTags'));
         $this->registerCallback('style', array($this, 'specialTags'));
+        $this->registerCallback('body', array($this, 'specialTags'));
         
         @$node->loadHTML($html);
         return $this->loopHtml($node);

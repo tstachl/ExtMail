@@ -49,6 +49,7 @@ class EmailController extends Zend_Controller_Action
     	$id = $mail->getId($this->getRequest()->getParam('message'));
         $message = $mail->getMessage($id, true);
         $mail->setFlags($id, array(Zend_Mail_Storage::FLAG_SEEN));
+        $showImages = (int)$this->getRequest()->getParam('showimages', 0);
         
         if ($message->countParts()) {
             foreach (new RecursiveIteratorIterator($message) as $part) {
@@ -58,7 +59,7 @@ class EmailController extends Zend_Controller_Action
                         $txt = $mail->convertMessageToPlain($part);
                         break;
                     case 'text/html':
-                        $txt = $mail->convertMessageToHtml($part);
+                        $txt = $mail->convertMessageToHtml($part, $showImages);
                         break;
                     default:
                         continue;
@@ -72,7 +73,7 @@ class EmailController extends Zend_Controller_Action
                     $txt = $mail->convertMessageToPlain($message);
                     break;
                 case 'text/html':
-                    $txt = $mail->convertMessageToHtml($message);
+                    $txt = $mail->convertMessageToHtml($message, $showImages);
                     break;
             }
             
@@ -206,7 +207,6 @@ class EmailController extends Zend_Controller_Action
     
     public function testAction()
     {
-    	var_dump(ExtMail_Imap::getInstance()->getMail()->getFolderSeparator());
-        die('testAction');
+    	die();
     }    
 }

@@ -405,18 +405,18 @@ class ExtMail_Imap
 	 * @param  Zend_Mail_Message|Zend_Mail_Part $message
 	 * @return string
 	 */
-	public function convertMessageToHtml($message)
+	public function convertMessageToHtml($message, $showImages = 0)
 	{
 	    $str = $this->convertMessage($message);
         $washer = new Stachl_WashtmlV2(array(
-            'show_washed'	        => true,
-            'allow_remote'          => false,
+            'show_washed'	        => false,
+            'allow_remote'          => ($showImages === 1 ? true : false),
             'blocked_src'	        => '/images/blocked.gif',
             'charset'		        => 'UTF-8',
             //'allowedHtmlTags'       => array('html', 'head', 'title', 'body')
         ));
         $str = $washer->wash($str);
-        $str = Stachl_Mail_Enrich::toHtml($str);
+        #$str = Stachl_Mail_Enrich::toHtml($str);
         return $str;
 	}
 	

@@ -15,6 +15,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			listeners: {
 				source: this.showSource,
 				removemessage: this.removeMessage,
+				showimages: this.showImages,
 				scope: this
 			}
 		});
@@ -99,6 +100,9 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 							me.setRead(r);
 							me.overwriteTemplates(me.getPreviewPanel(), r.data, me.prepareBody(d.responseText));
 							me.resizePreviewPanel(me.getPreviewPanel());
+							if (me.imagesBlocked) {
+								me.getPreviewPanel().showImagesBlocked();
+							}
 							me.getPreviewPanel().scrollToTop();
 							me.getPreviewPanel().hideLoading();
 						}
@@ -129,6 +133,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			listeners: {
 				source: this.showSource,
 				removemessage: this.removeMessage,
+				showimages: this.showImages,
 				scope: this
 			}
 		}));
@@ -156,6 +161,9 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				me.setRead(r);
 				me.overwriteTemplates(np, r.data, me.prepareBody(d.responseText));
 				me.resizePreviewPanel(np);
+				if (me.imagesBlocked) {
+					np.showImagesBlocked();
+				}
 				np.scrollToTop();
 				np.hideLoading();
 			}
@@ -203,7 +211,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		this.doLayout();
 	},
 	overwriteTemplates: function(previewPanel, headerData, bodyData) {
-		previewPanel.getTemplate().overwrite(this.getPreviewPanel().getHeader().body, headerData);
+		previewPanel.getTemplate().overwrite(previewPanel.getHeader().body, headerData);
 		previewPanel.getBody().update('<div class="email-body">' + bodyData + '</div>');
 	},
 	resizePreviewPanel: function(previewPanel) {
@@ -216,6 +224,11 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		previewPanel.getBody().setHeight(fullSize.height - headerSize.height - tbarSize.height);
 	},
 	prepareBody: function(body) {
+		if (new RegExp('<img[^>]*>','g').test(body)) {
+			this.imagesBlocked = true;
+		} else {
+			this.imagesBlocked = false;
+		}
 		body = Ext.util.Format.stripScripts(body);
 		return body;
 	},
@@ -267,6 +280,29 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			});
 		} else {
 			App.getInstance().showError(_('Deleting messages'), _('There are no messages selected.'));
+		}
+	},
+	showImages: function(panel) {
+		panel.showLoading();
+		if (this.getGrid().getSelectionModel().getCount() == 1) {
+			var me = this,
+				r = this.getGrid().getSelectionModel().getSelected();
+			
+			Ext.Ajax.request({
+				url: '/email/body',
+				params: {
+					folder: this.folder,
+					message: r.get('message'),
+					showimages: 1
+				},
+				success: function(d) {
+					panel.getTopToolbar().show();
+					me.overwriteTemplates(panel, r.data, me.prepareBody(d.responseText));
+					me.resizePreviewPanel(panel);
+					panel.scrollToTop();
+					panel.hideLoading();
+				}
+			});
 		}
 	}
 });

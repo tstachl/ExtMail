@@ -12,28 +12,40 @@ ExtMail.Toolbar = Ext.extend(Ext.Toolbar, {
 	},
 	beforeRender: function() {
 		this.add([{
-			text: _('Get Email')
+			text: _('Get Email'),
+			iconCls: 'ico_get_email',
+			disabled: true
 		}, {
-			text: _('Write')
-		}, {
-			text: _('Address Book')
+			text: _('Write'),
+			iconCls: 'ico_write',
+			disabled: true
 		}, '-', {
-			text: _('Tags')
+			text: _('Address Book'),
+			iconCls: 'ico_addressbook',
+			disabled: true
+		}, '-', {
+			text: _('Tags'),
+			iconCls: 'ico_tags',
+			disabled: true
 		}, {
 			text: _('Reading Pane'),
+			iconCls: 'ico_reading_pane',
 			menu: [{
 				text: _('Bottom'),
 				name: 'bottom',
+				iconCls: 'ico_reading_pane_bottom',
 				handler: this.movePreview,
 				scope: this
 			}, {
 				text: _('Right'),
 				name: 'right',
+				iconCls: 'ico_reading_pane_right',
 				handler: this.movePreview,
 				scope: this
 			}, {
 				text: _('Hide'),
 				name: 'hide',
+				iconCls: 'ico_reading_pane_hide',
 				handler: this.movePreview,
 				scope: this
 			}]

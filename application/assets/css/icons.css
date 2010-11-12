@@ -37,6 +37,36 @@
 .ico_delete {
 	background:url(../images/icons/small/delete.png) no-repeat left center !important;
 }
-.answered .x-grid3-col-0 {
+.ico_reading_pane {
+	background:url(../images/icons/small/application_side_expand.png) no-repeat left center !important;	
+}
+.ico_reading_pane_bottom {
+	background:url(../images/icons/small/application_split.png) no-repeat left center !important;	
+}
+.ico_reading_pane_right {
+	background:url(../images/icons/small/application_tile_horizontal.png) no-repeat left center !important;	
+}
+.ico_reading_pane_hide {
+	background:url(../images/icons/small/application.png) no-repeat left center !important;	
+}
+.ico_tags {
+	background:url(../images/icons/small/asterisk_orange.png) no-repeat left center !important;	
+}
+.ico_addressbook {
+	background:url(../images/icons/small/book_addresses.png) no-repeat left center !important;	
+}
+.ico_write {
+	background:url(../images/icons/small/bullet_edit.png) no-repeat left center !important;	
+}
+.ico_get_email {
+	background:url(../images/icons/small/arrow_refresh.png) no-repeat left center !important;	
+}
+.emailrow .x-grid3-col-0 {
+	background:url(../images/icons/small/bullet_orange.png) no-repeat 5px 50% !important;
+}
+.emailrow.seen .x-grid3-col-0 {
+	background-image: none !important;
+}
+.emailrow.answered .x-grid3-col-0 {
 	background:url(../images/icons/small/email_go.png) no-repeat 5px 50% !important;
 }

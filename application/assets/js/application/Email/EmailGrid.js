@@ -41,8 +41,7 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 			listeners: {
 				beforeload: this.beforeLoad,
 				load: this.load,
-				mouseover: this.mouseEvent,
-				mouseout: this.mouseEvent,
+				mouseup: this.mouseUp,
 				scope: this
 			}
 		});
@@ -74,8 +73,14 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 			App.getInstance().hideLoading();
 		}
 	},
-	mouseEvent: function(e) {
+	mouseUp: function(e) {
+		if (e.button !== 1) {
+			return;
+		}
 		e.stopEvent();
+		var row = e.getTarget('.x-grid3-row');
+		this.getSelectionModel().selectRow(row.rowIndex);
+		this.fireEvent('rowdblclick', this, row.rowIndex, e);
 	},
 	preload: function() {
 //		if (!this.preloadTask) {
