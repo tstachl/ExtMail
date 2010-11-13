@@ -25,11 +25,12 @@ ExtMail.Login.Window = Ext.extend(Stachl.Login, {
     	ExtMail.Login.Window.superclass.initComponent.call(this);
     	
 		this.hostId = Ext.id();
+		this.portId = Ext.id();
 		this.sslId = Ext.id();
 		
-//    	this.height = 320;
+    	this.height = 320;
     	
-//    	this.on('beforerender', this.addAdditionalFields, this);
+    	this.on('beforerender', this.addAdditionalFields, this);
 //    	this.on('show', function() {
 //    		Ext.getCmp(this.hostId).setValue('localhost');
 //    		Ext.getCmp(this.sslId).setValue('none');
@@ -49,20 +50,32 @@ ExtMail.Login.Window = Ext.extend(Stachl.Login, {
 			typeAhead: true,
 			triggerAction: 'all',
 			lazyRender: true,
-			mode: 'local',
-			store: new Ext.data.ArrayStore({
-				fields: ['host'],
-				data: [['localhost'], ['Gmail']]
+			mode: 'remote',
+			store: new Ext.data.JsonStore({
+				autoLoad: true,
+				url: '/login/authentication',
+				root: 'hosts',
+				idProperty: 'host',
+				fields: ['name', 'host', 'port', 'ssl', 'selected'],
+				listeners: {
+					load: this.hostStoreLoaded,
+					scope: this
+				}
 			}),
-			name: this.hostField,
+			hiddenName: this.hostField,
 			fieldLabel: this.hostLabel,
 			width: 300,
-			displayField: 'host',
-			valueField: 'host'
+			displayField: 'name',
+			valueField: 'host',
+			listeners: {
+				select: this.hostChange,
+				scope: this
+			}
 		});
 		
 		this._formPanel.insert(3, {
             xtype: 'textfield',
+            id: this.portId,
             name: this.portField,
             fieldLabel: this.portLabel,
             vtype: this.portVtype,
@@ -89,6 +102,18 @@ ExtMail.Login.Window = Ext.extend(Stachl.Login, {
 			displayField: 'name',
 			valueField: 'name'
 		});
+	},
+	hostChange: function(field, r) {
+		Ext.getCmp(this.portId).setValue(r.get('port'));
+		Ext.getCmp(this.sslId).setValue(r.get('ssl'));
+	},
+	hostStoreLoaded: function(store) {
+		var r = store.find('selected', 1);
+		if (r == -1) {
+			r = 0;
+		}
+		Ext.getCmp(this.hostId).setValue(store.getAt(r).get('host'));
+		Ext.getCmp(this.hostId).fireEvent('select', Ext.getCmp(this.hostId), store.getAt(r), r);
 	},
 	submit: function() {
 		var form = this._formPanel.getForm();

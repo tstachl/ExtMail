@@ -104,4 +104,21 @@ class LoginController extends Zend_Controller_Action
 		return $authAdapter->setIdentity($params['username'])
 						   ->setCredential($params['password']);
 	}
+	
+	public function authenticationAction()
+	{
+	    $hosts = $this->_helper->config('application')->authentication->hosts->toArray();
+	    foreach ($hosts as $key => $host) {
+	        $clean[] = array(
+	            'name'     => $key,
+	            'host'     => $host['host'],
+	            'port'     => $host['port'],
+	            'ssl'      => $host['ssl'],
+	            'selected' => $host['selected']
+	        );
+	    }
+	    $this->_helper->output(array(
+	        'hosts' => $clean
+	    ));
+	}
 }
