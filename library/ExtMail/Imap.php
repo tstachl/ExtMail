@@ -144,11 +144,12 @@ class ExtMail_Imap
         	$options[$folderKey] = array_merge($options['default'], (empty($options[$folderKey]) ? array() : $options[$folderKey]));
         	// create a new list item and merge the folders options with the unique information
         	$listItem = array_merge($options[$folderKey], array(
-                    'text'        => htmlspecialchars($localName),
+                    'text'        => htmlspecialchars(Stachl_Decode::UTF7($localName)),
                 	'newCount'    => $this->getFolderNewMessages($folder),
+        	        'disabled'    => ($folder->isSelectable() ? false : true),
                 	'classConfig' => array_merge($options[$folderKey]['classConfig'], array(
                     	'folder'  => htmlspecialchars($folder),
-                		'title'	  => htmlspecialchars($localName)
+                		'title'	  => htmlspecialchars(Stachl_Decode::UTF7($localName))
                 	))
         	));
         	
@@ -172,7 +173,12 @@ class ExtMail_Imap
 	 */
 	public function getCleanedFolderList()
 	{
-		return $this->_cleanInboxOnTopLevel($this->getRecursiveFolderList($this->getMail()->getFolders()));
+	    $folders = $this->_cleanInboxOnTopLevel($this->getRecursiveFolderList($this->getMail()->getFolders()));
+	    foreach ($folders as $key => $folder) {
+	        $sort[$key] = $folder['text'];
+	    }
+	    array_multisort($sort, SORT_ASC, $folders);
+		return $folders;
 	}
 	
 	/**
@@ -183,8 +189,12 @@ class ExtMail_Imap
 	 */
 	public function getFolderNewMessages($folder)
 	{
-		$this->setFolder($folder);
-    	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
+	    try {
+    		$this->setFolder($folder);
+        	return ($this->getMail()->countMessages() - $this->getMail()->countMessages(Zend_Mail_Storage::FLAG_SEEN));
+	    } catch (Zend_Mail_Storage_Exception $e) {
+	        return 0;
+	    }
 	}
 	
 	/**
@@ -444,12 +454,13 @@ class ExtMail_Imap
 	protected function _cleanInboxOnTopLevel($folders = array())
 	{
 		if (!empty($folders[0]['children'])) {
-	    	$return = $folders[0]['children'];
+	    	foreach ($folders[0]['children'] as $child) {
+	    	    array_push($folders, $child);
+	    	}
 	    	unset($folders[0]['children']);
 	    	$folders[0]['leaf'] = true;
-	    	array_unshift($return, $folders[0]);
 		}
-    	return (isset($return) ? $return : $folders);
+    	return $folders;
 	}
 	
 	/**

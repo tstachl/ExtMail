@@ -18,6 +18,10 @@
  * @license    http://creativecommons.org/licenses/GPL/2.0/     CC-GNU GPL License
  */
 
+/**
+ * @see Zend_Mail_Storage_Imap
+ */
+
 class Stachl_Mail_Storage_Imap extends Zend_Mail_Storage_Imap
 {
 	
@@ -82,6 +86,82 @@ class Stachl_Mail_Storage_Imap extends Zend_Mail_Storage_Imap
             require_once 'Zend/Mail/Storage/Exception.php';
             throw new Zend_Mail_Storage_Exception('cannot create folder');
         }
+    }
+    
+    /**
+     * get root folder or given folder
+     *
+     * @param  string $rootFolder get folder structure for given folder, else root
+     * @return Zend_Mail_Storage_Folder root or wanted folder
+     * @throws Zend_Mail_Storage_Exception
+     * @throws Zend_Mail_Protocol_Exception
+     */
+    public function getFolders($rootFolder = null)
+    {
+        $folders = $this->_protocol->listMailbox((string)$rootFolder);
+        if (!$folders) {
+            /**
+             * @see Zend_Mail_Storage_Exception
+             */
+            require_once 'Zend/Mail/Storage/Exception.php';
+            throw new Zend_Mail_Storage_Exception('folder not found');
+        }
+
+        ksort($folders, SORT_STRING);
+        $root = new Zend_Mail_Storage_Folder('/', '/', false);
+        $stack = array(null);
+        $folderStack = array(null);
+        $parentFolder = $root;
+        $parent = '';
+        
+        foreach ($folders as $globalName => $data) {
+            do {
+                if (!$parent || strpos($globalName, $parent) === 0) {
+                    $pos = strrpos($globalName, $data['delim']);
+                    if ($pos === false) {
+                        $localName = $globalName;
+                    } else {
+                        $localName = substr($globalName, $pos + 1);
+                    }
+                    $selectable = !$data['flags'] || !in_array('\\Noselect', $data['flags']);
+
+                    array_push($stack, $parent);
+                    $parent = $globalName . $data['delim'];
+                    $folder = new Zend_Mail_Storage_Folder(Stachl_Decode::UTF7($localName), Stachl_Decode::UTF7($globalName), $selectable);
+                    $parentFolder->$localName = $folder;
+                    array_push($folderStack, $parentFolder);
+                    $parentFolder = $folder;
+                    break;
+                } else if ($stack) {
+                    $parent = array_pop($stack);
+                    $parentFolder = array_pop($folderStack);
+                }
+            } while ($stack);
+            if (!$stack) {
+                /**
+                 * @see Zend_Mail_Storage_Exception
+                 */
+                require_once 'Zend/Mail/Storage/Exception.php';
+                throw new Zend_Mail_Storage_Exception('error while constructing folder tree');
+            }
+        }
+
+        return $root;
+    }
+    
+    /**
+     * select given folder
+     *
+     * folder must be selectable!
+     *
+     * @param  Zend_Mail_Storage_Folder|string $globalName global name of folder or instance for subfolder
+     * @return null
+     * @throws Zend_Mail_Storage_Exception
+     * @throws Zend_Mail_Protocol_Exception
+     */
+    public function selectFolder($globalName)
+    {
+        parent::selectFolder(Stachl_Encode::UTF7((string)$globalName));
     }
 	
 }
