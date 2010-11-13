@@ -67,7 +67,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			var r    = grid.getSelectionModel().getSelected(),
 				me   = this,
 				cell = e.getTarget('.x-grid3-col');
-			if ('flag' == grid.getColumnModel().getDataIndex(cell.cellIndex)) {
+			if ((cell !== null) && ('flag' == grid.getColumnModel().getDataIndex(cell.cellIndex))) {
 				if (r.get('flag')) {
 					this.mainpanel.getSouth().showBusy(String.format(_('Remove flag from: "{0}" ...'), r.get('subject')));
 				} else {
