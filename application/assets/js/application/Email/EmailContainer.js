@@ -16,6 +16,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				source: this.showSource,
 				removemessage: this.removeMessage,
 				showimages: this.showImages,
+				junk: this.markJunk,
 				scope: this
 			}
 		});
@@ -66,7 +67,6 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 			var r    = grid.getSelectionModel().getSelected(),
 				me   = this,
 				cell = e.getTarget('.x-grid3-col');
-			
 			if ('flag' == grid.getColumnModel().getDataIndex(cell.cellIndex)) {
 				if (r.get('flag')) {
 					this.mainpanel.getSouth().showBusy(String.format(_('Remove flag from: "{0}" ...'), r.get('subject')));
@@ -301,6 +301,34 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 					me.resizePreviewPanel(panel);
 					panel.scrollToTop();
 					panel.hideLoading();
+				}
+			});
+		}
+	},
+	markJunk: function(panel) {
+		if (this.getGrid().getSelectionModel().getCount() > 0) {
+			var me     = this,
+				msgIds = [];
+			Ext.each(this.getGrid().getSelectionModel().getSelections(), function(item) {
+				msgIds.push(item.get('message'));
+			});
+			
+			Ext.Ajax.request({
+				url: '/email/junk',
+				params: {
+					folder: this.folder,
+					messages: Ext.encode(msgIds)
+				},
+				success: function(d) {
+					d = Ext.decode(d.responseText);
+					if (d.success) {
+						me.getGrid().getStore().remove(me.getGrid().getSelectionModel().getSelections());
+						me.getPreviewPanel().restoreDefault();
+						me.getPreviewPanel().doLayout();
+						if (Ext.isDefined(panel.controller)) {
+							panel.controller.getMainContainer().closeTab(panel);
+						}
+					}
 				}
 			});
 		}

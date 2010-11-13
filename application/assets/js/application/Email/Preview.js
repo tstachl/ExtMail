@@ -27,7 +27,8 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 				}, {
 					text: _('Junk'),
 					iconCls: 'ico_junk',
-					disabled: true
+					handler: this.markJunk,
+					scope: this
 				}, {
 					text: _('Delete'),
 					iconCls: 'ico_delete',
@@ -123,6 +124,9 @@ ExtMail.Email.Preview = Ext.extend(Ext.Panel, {
 	},
 	showImages: function() {
 		this.fireEvent('showimages', this);
+	},
+	markJunk: function() {
+		this.fireEvent('junk', this);
 	},
 	showSource: function() {
 		if (this.sourceWindow == null) {

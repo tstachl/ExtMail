@@ -33,7 +33,8 @@ class EmailController extends Zend_Controller_Action
     			'flag'	     => $message->hasFlag(Zend_Mail_Storage::FLAG_FLAGGED),
     			'seen'		 => $message->hasFlag(Zend_Mail_Storage::FLAG_SEEN),
     			'answered'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_ANSWERED),
-    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED)
+    			'deleted'	 => $message->hasFlag(Zend_Mail_Storage::FLAG_DELETED),
+    		    'flags'		 => $message->getFlags()
     		);
     	}
     	
@@ -147,6 +148,18 @@ class EmailController extends Zend_Controller_Action
 		return $this->_helper->output(array(
 			'success' => true
 		));
+    }
+    
+    public function junkAction()
+    {
+        $mail = ExtMail_Imap::getInstance($this->getRequest()->getParam('folder'));
+        $messages = Zend_Json::decode($this->getRequest()->getParam('messages'));
+        foreach ($messages as $messageId) {
+            $mail->moveMessageToJunk($mail->getId($messageId));
+        }
+        return $this->_helper->output(array(
+            'success' => true
+        ));
     }
     
     public function folderrenameAction()

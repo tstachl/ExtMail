@@ -332,6 +332,21 @@ class ExtMail_Imap
 	    }
 	}
 	
+	public function moveMessageToJunk($id)
+	{
+	    try {
+	        $current = $this->getMail()->getCurrentFolder();
+	        if ($current != 'INBOX.Junk') {
+	            $this->setFolder('INBOX.Junk');
+	            $this->setFolder($current);
+	            $this->getMail()->moveMessage($id, 'INBOX.Junk');
+	        }
+	        return true;
+	    } catch (Zend_Mail_Storage_Exception $e) {
+	        return false;
+	    }
+	}
+	
     /**
      * get a message number from a unique id
      *

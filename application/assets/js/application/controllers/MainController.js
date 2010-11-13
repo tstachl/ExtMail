@@ -106,6 +106,7 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 					type: 'date'
 				}
 			},
+			flags: {},
 			flag: {
 				grid: {
 					header: 'Flag',
