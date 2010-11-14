@@ -74,7 +74,7 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 		}
 	},
 	mouseUp: function(e) {
-		if (e.button !== 1) {
+		if ((Ext.isGecko && e.button !== 1) || (Ext.isWebkit && e.button !== 2)) {
 			return;
 		}
 		e.stopEvent();
