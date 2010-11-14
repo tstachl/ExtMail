@@ -33,6 +33,7 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 			tbar: new ExtMail.Toolbar({
 				listeners: {
 					movepreview: this.movePreview,
+					write: this.write,
 					scope: this
 				}
 			}),
@@ -63,15 +64,27 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 		this.setActiveItem('mainpanel');
 		ExtMail.Controllers.MainController.superclass.show.call(this);
 	},
-	setActiveItem: function(i) {
-		var v = this.views.getView(i);		
-		return this.getMainContainer().setActiveTab(v);
+	setActiveItem: function(p) {
+		if (typeof p === 'string') {
+			p = this.views.getView(p);
+		}
+		return this.getMainContainer().setActiveTab(p);
 	},
 	getStatus: function() {
 		return Ext.getCmp(this.statusId);
 	},
 	movePreview: function(tb, button) {
 		this.getMainContainer().getActiveTab().findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
+	},
+	write: function() {
+		var p = this.getMainContainer().add(new ExtMail.Email.New({
+			title: _('(no subject)'),
+			iconCls: 'ico_write',
+			hideMenu: true,
+			closable: true,
+			controller: this
+		}));
+		this.setActiveItem(p);
 	},
 	addDefs: function() {
 		this.defs.add('emailgrid', new Stachl.StoreDef({

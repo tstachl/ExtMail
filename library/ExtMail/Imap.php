@@ -174,10 +174,10 @@ class ExtMail_Imap
 	public function getCleanedFolderList()
 	{
 	    $folders = $this->_cleanInboxOnTopLevel($this->getRecursiveFolderList($this->getMail()->getFolders()));
-	    foreach ($folders as $key => $folder) {
-	        $sort[$key] = $folder['text'];
-	    }
-	    array_multisort($sort, SORT_ASC, $folders);
+//	    foreach ($folders as $key => $folder) {
+//	        $sort[$key] = $folder['text'];
+//	    }
+//	    array_multisort($sort, SORT_ASC, $folders);
 		return $folders;
 	}
 	

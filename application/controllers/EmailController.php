@@ -218,8 +218,40 @@ class EmailController extends Zend_Controller_Action
         ));
     }
     
+    public function sendAction()
+    {
+        $to = $this->getRequest()->getParam('to');
+        $cc = $this->getRequest()->getParam('cc');
+        $subject = $this->getRequest()->getParam('subject');
+        $message = $this->getRequest()->getParam('message');
+        $auth = Zend_Auth::getInstance()->getIdentity();
+        
+        $to = explode(';', $to);
+        $cc = explode(';', $cc);
+        
+        $transport = new Zend_Mail_Transport_Smtp($auth->host, array(
+            'auth' => 'login',
+            'username' => $auth->username,
+            'password' => $auth->password
+        ));
+        
+        $mail = new Zend_Mail();
+        $mail->setBodyText($message);
+        $mail->setFrom($auth->username);
+        $mail->addTo($to);
+        $mail->setSubject($subject);
+        $mail->send($transport);
+        
+        $this->_helper->output(array(
+            'success' => true
+        ));
+    }
+    
     public function testAction()
     {
+        $string = 'thomas@stachl.me';
+        $array = explode(';', $string);
+        var_dump($array);
     	die();
     }    
 }

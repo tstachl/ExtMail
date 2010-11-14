@@ -57,6 +57,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   
 						   /* EXT UX */
 						   ->appendFile('/js/library/ext-3.2.1/ux-all-debug.js', 'text/javascript')
+						   ->appendFile('/js/library/ext-3.2.1/ux/FieldLabeler.js', 'text/javascript')
 						   
 						   /* STACHL LIBRARY */
 						   ->appendFile('/js/library/Stachl/Application.js', 'text/javascript')
@@ -78,6 +79,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/Stachl/BufferGrid.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/CardContainer.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/TabPanel.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/GroupTextField.js', 'text/javascript')
 						   
 						   /* ExtMail Library */
 						   ->appendFile('/js/library/ExtMail/FolderNodeUI.js', 'text/javascript')
@@ -101,6 +103,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
     						   ->appendFile('/js/application/Email/EmailGrid.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/Preview.js', 'text/javascript')
     						   ->appendFile('/js/application/Email/SourceWindow.js', 'text/javascript')
+    						   ->appendFile('/js/application/Email/New.js', 'text/javascript')
     						   ;
         }
 

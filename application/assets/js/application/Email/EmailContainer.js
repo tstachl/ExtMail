@@ -122,7 +122,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 		
 		me.getPreviewPanel().hideLoading();
 		
-		controller.views.add(npId, new ExtMail.Email.Preview({
+		np = controller.getMainContainer().add(new ExtMail.Email.Preview({
 			title: r.get('subject'),
 			iconCls: 'ico_email_open',
 			controller: controller,
@@ -137,10 +137,7 @@ ExtMail.Email.EmailContainer = Ext.extend(Ext.Panel, {
 				scope: this
 			}
 		}));
-		
-		np = controller.views.get(npId);
-		controller.getMainContainer().add(np);
-		controller.setActiveItem(npId);
+		controller.setActiveItem(np);
 		
 		np.showLoading();
 		np.on('removemessage', function(item) {

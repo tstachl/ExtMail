@@ -78,3 +78,48 @@ div.image-info div {
 div.image-info table {
 	float: right;
 }
+
+
+
+
+li.x-form-group-item {
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border: 1px solid #C1C1C1;
+	padding: 2px;
+	position: relative;
+	float: left;
+	background: #D9F9D9;
+	cursor: default;
+}
+
+li.x-form-group-item a {
+	text-decoration: none !important;
+}
+
+a.x-form-group-item-close {
+	background-image: url("../images/gray/tabs/tab-close.gif");
+	opacity: 0.8;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	display: block;
+	height: 11px;
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 11px;
+	z-index: 2;
+}
+
+a.x-form-group-item-close:hover {
+	opacity: 1;
+}
+
+a.x-form-group-item-text {
+	padding-right: 19px;
+	padding-left: 2px;
+}
+
+
+
+
