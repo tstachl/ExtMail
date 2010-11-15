@@ -34,6 +34,7 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 				listeners: {
 					movepreview: this.movePreview,
 					write: this.write,
+					receive: this.receive,
 					scope: this
 				}
 			}),
@@ -74,7 +75,10 @@ ExtMail.Controllers.MainController = Ext.extend(Stachl.Controller, {
 		return Ext.getCmp(this.statusId);
 	},
 	movePreview: function(tb, button) {
-		this.getMainContainer().getActiveTab().findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
+		this.getMainContainer().findByType('extmail_email_emailcontainer')[0].movePreview(button.name);
+	},
+	receive: function(tb) {
+		this.getMainContainer().findByType('extmail_email_emailgrid')[0].checkForNew();
 	},
 	write: function() {
 		var p = this.getMainContainer().add(new ExtMail.Email.New({

@@ -23,8 +23,15 @@ class EmailController extends Zend_Controller_Action
     	
     	$mail = ExtMail_Imap::getInstance($req->getParam('folder'));
     	$messages = array();
+    	$messageList = array();
     	
-    	foreach ($mail->getMessageList((int)$req->getParam('start'), (int)$req->getParam('limit')) as $index => $message) {
+    	if ($req->getParam('checknew', 0) == 0) {
+        	$messageList = $mail->getMessageList((int)$req->getParam('start'), (int)$req->getParam('limit'));
+    	} else {
+    	    $messageList = $mail->getMessageList(0, (int)$req->getParam('limit'), $req->getParam('first', 0));
+    	}
+    	
+        foreach ($messageList as $index => $message) {
     		$messages[] = array(
     			'message'	 => $index,
     			'subject'    => $message->subject,
