@@ -8,13 +8,14 @@ ExtMail.Toolbar = Ext.extend(Ext.Toolbar, {
 		});
 		ExtMail.Toolbar.superclass.initComponent.call(this);
 		
-		this.addEvents('movepreview');
+		this.addEvents('movepreview', 'receive');
 	},
 	beforeRender: function() {
 		this.add([{
 			text: _('Get Email'),
 			iconCls: 'ico_get_email',
-			disabled: true
+			handler: this.receive,
+			scope: this
 		}, {
 			text: _('Write'),
 			iconCls: 'ico_write',
@@ -52,7 +53,7 @@ ExtMail.Toolbar = Ext.extend(Ext.Toolbar, {
 		}]);
 	},
 	receive: function() {
-		
+		this.fireEvent('receive', this);
 	},
 	write: function() {
 		

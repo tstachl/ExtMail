@@ -267,21 +267,35 @@ class ExtMail_Imap
 	 * @param  int    $limit  limit of maximal messages
 	 * @return array  messages
 	 */
-	public function getMessageList($start = 0, $limit = 40)
+	public function getMessageList($start = 0, $limit = 40, $first = null)
 	{
-		$range = $this->_calculateRange($start, $limit);
 		$messages = array();
-		do {
-		    // get message from the range
-		    $message = $this->getMessage($range[0]);
-		    // if we don't have a message leave
-		    if (!$message) break;
-		    // if we have a message add it to the list
-			$messages[$this->getUId($range[0])] = $this->getMessage($range[0]);
-			// check which direction and add or remove 1 from the range
-    	    if ($range[0] < $range[1]) $range[0]++;
-    	    elseif ($range[0] > $range[1]) $range[0]--;
-		} while ($range[0] != $range[1]);
+	    if ($first !== null) {
+	        $i = $this->getMail()->countMessages();
+	        while ($this->getUId($i) != (int)$first) {
+	            // get latest message
+	            $message = $this->getMessage($i);
+	            // if we don't have a message leave
+	            if (!$message) break;
+	            // if we have a message add it to the list
+	            $messages[$this->getUId($i)] = $message;
+	            // as we have a descending sort
+	            $i--;
+	        }
+	    } else {
+	        $range = $this->_calculateRange($start, $limit);
+    		do {
+    		    // get message from the range
+    		    $message = $this->getMessage($range[0]);
+    		    // if we don't have a message leave
+    		    if (!$message) break;
+    		    // if we have a message add it to the list
+    			$messages[$this->getUId($range[0])] = $message;
+    			// check which direction and add or remove 1 from the range
+        	    if ($range[0] < $range[1]) $range[0]++;
+        	    elseif ($range[0] > $range[1]) $range[0]--;
+    		} while ($range[0] != $range[1]);
+	    }
 		return $messages;
 	}
 	
@@ -396,7 +410,7 @@ class ExtMail_Imap
 	{
         $str = $message->getContent();
         if ($message->headerExists('content-transfer-encoding')) {
-            switch ($message->contentTransferEncoding) {
+            switch (strtolower($message->contentTransferEncoding)) {
                 case 'quoted-printable':
                     $str = quoted_printable_decode($str);
                     break;

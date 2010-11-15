@@ -82,6 +82,27 @@ ExtMail.Email.EmailGrid = Ext.extend(Stachl.BufferGrid, {
 		this.getSelectionModel().selectRow(row.rowIndex);
 		this.fireEvent('rowdblclick', this, row.rowIndex, e);
 	},
+	checkForNew: function() {
+		this.loading = true;
+		this.fireEvent('beforeload');
+		this.getStore().load({
+			params: {
+				checknew: 1,
+				first: Ext.isDefined(this.getStore().getAt(0)) ? this.getStore().getAt(0).get('message') : 0
+			},
+			callback: function() {
+				if (Ext.isDefined(this.getStore().getSortState())) {
+					this.getStore().sort(this.getStore().getSortState().field, this.getStore().getSortState().direction);
+				} else {
+					this.getStore().sort('message', 'DESC');
+				}
+				this.loading = false;
+				this.fireEvent('load');
+			},
+			scope: this,
+			add: true
+		});
+	},
 	preload: function() {
 //		if (!this.preloadTask) {
 //			this.preloadTask = new Ext.util.DelayedTask(this.doPreload, this);
