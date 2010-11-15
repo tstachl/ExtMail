@@ -574,6 +574,14 @@ class Stachl_WashtmlV2
                     if ($this->callbackExists($tagName)) {
                         $dump .= call_user_func($this->getCallback($tagName), $tagName, $this->washAttributes($node), $this->loopHtml($node));
                     } else if ($this->isTagAllowed($tagName)) {
+                        if (($tagName == 'table') && $node->hasAttribute('cellpadding') && ((int)$node->getAttribute('cellpadding') > 0)) {
+                            $tds = $node->getElementsByTagName('td');
+                            foreach ($tds as $td) {
+                                $style = $td->getAttribute('style');
+                                $style .= ';padding: ' . $node->getAttribute('cellpadding') . 'px;';
+                                $td->setAttribute('style', $this->washStyle($style));
+                            }
+                        }
                         $content = $this->loopHtml($node);
                         $dump .= '<' . $tagName . $this->washAttributes($node) . ($content != '' || $node->hasAttributes() || $this->isNonEmptyTag($tagName) ? ">$content</$tagName>" : ' />');
                     } else if ($this->isTagForbidden($tagName)) {
