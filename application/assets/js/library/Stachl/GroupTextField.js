@@ -3,16 +3,28 @@ Stachl.GroupTextField = Ext.extend(Ext.form.TextField, {
 	list: null,
 	elements: [],
 	delimiter: ';',
+	initComponent: function() {
+		Stachl.GroupTextField.superclass.initComponent.call(this);
+		
+		this.addEvents('addedelement');
+	},
 	initEvents: function() {
 		Stachl.GroupTextField.superclass.initEvents.call(this);
 		this.mon(this.el, 'keyup', this.extractElements, this);
 	},
 	onRender: function(ct, position) {
 		Stachl.GroupTextField.superclass.onRender.call(this, ct, position);
-		this.list = ct.insertFirst(Ext.DomHelper.createDom({
+		
+		this.wrap = this.el.wrap();
+		
+		this.list = this.wrap.insertFirst({
 			tag: 'ul',
 			cls: 'x-form-group'
-		}));
+		});
+	},
+	checkSize: function() {
+		this.height = this.wrap.getHeight();
+		this.ownerCt.doLayout();
 	},
 	extractElements: function() {
 		var v = this.getRawValue();
@@ -41,7 +53,7 @@ Stachl.GroupTextField = Ext.extend(Ext.form.TextField, {
 		    cls: 'x-form-group-item-close'
 		}));
 		
-		this.ownerCt.doLayout();
+		this.checkSize();
 		
 		cb.on('click', this.removeFromList, this, { el: el, value: v});
 		this.checkAllowBlank(true);
@@ -58,7 +70,7 @@ Stachl.GroupTextField = Ext.extend(Ext.form.TextField, {
 		item.remove();
 		item.purgeAllListeners();
 		this.elements.remove(obj.value);
-		this.ownerCt.doLayout();
+		this.checkSize();
 	},
 	getValue: function() {
 		if (this.elements.length > 0) {

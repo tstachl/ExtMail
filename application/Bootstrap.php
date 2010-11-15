@@ -58,6 +58,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   /* EXT UX */
 						   ->appendFile('/js/library/ext-3.2.1/ux-all-debug.js', 'text/javascript')
 						   ->appendFile('/js/library/ext-3.2.1/ux/FieldLabeler.js', 'text/javascript')
+						   ->appendFile('/js/library/ext-3.2.1/ux/CKEditor.js', 'text/javascript')
 						   
 						   /* STACHL LIBRARY */
 						   ->appendFile('/js/library/Stachl/Application.js', 'text/javascript')
@@ -80,8 +81,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 						   ->appendFile('/js/library/Stachl/CardContainer.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/TabPanel.js', 'text/javascript')
 						   ->appendFile('/js/library/Stachl/GroupTextField.js', 'text/javascript')
+						   ->appendFile('/js/library/Stachl/HtmlEditor.js', 'text/javascript')
 						   
-						   /* ExtMail Library */
+						   /* CKEDITOR LIBRARY */
+						   
+						   /* ExtMail LIBRARY */
 						   ->appendFile('/js/library/ExtMail/FolderNodeUI.js', 'text/javascript')
 						   
 						   /* ExtMail COMPONENTS */
