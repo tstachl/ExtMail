@@ -1,7 +1,6 @@
 Ext.ns('Stachl');
 Stachl.TabPanel = Ext.extend(Ext.TabPanel, {
 	onStripMouseDown: function(e) {
-		Debug.log(e);
 		Stachl.TabPanel.superclass.onStripMouseDown.call(this, e);
 		if ((Ext.isGecko && e.button !== 1) || (Ext.isWebkit && e.button !== 2)) {
 			return;
